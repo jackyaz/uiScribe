@@ -39,7 +39,7 @@ If this does not work, you will need to use the full path:
 Launch uiScribe and select option u
 
 ## Help
-Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/uiScribe-internet-connection-monitoring.56163/)
+Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/scribe-syslog-ng-and-logrotate-installer.55853/)
 
 ## FAQs
 ### I haven't used scripts before on AsusWRT-Merlin
