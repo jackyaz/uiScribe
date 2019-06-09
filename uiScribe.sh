@@ -157,9 +157,9 @@ Create_Dirs(){
 }
 
 Create_Symlinks(){
-	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm"
-	ln -s "/opt/var/log/firewall.log"  "$SCRIPT_WEB_DIR/firewall.htm"
-	ln -s "/opt/var/log/openvpn.log"  "$SCRIPT_WEB_DIR/openvpn.htm"
+	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
+	ln -s "/opt/var/log/firewall.log"  "$SCRIPT_WEB_DIR/firewall.htm" 2>/dev/null
+	ln -s "/opt/var/log/openvpn.log"  "$SCRIPT_WEB_DIR/openvpn.htm" 2>/dev/null
 }
 
 Auto_Startup(){
