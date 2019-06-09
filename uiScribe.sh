@@ -156,9 +156,12 @@ Create_Dirs(){
 }
 
 Create_Symlinks(){
+	syslog-ng --preprocess-into="$SCRIPT_DIR/logs.txt" && grep "file(\"" "$SCRIPT_DIR/logs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" |sed -e 's/file("\/opt\/var\/log\/\(.*\)");/\1/' | sed 's/\.log//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/logs.txt"
+	ln -s "$SCRIPT_DIR/logs.txt"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
 	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
-	ln -s "/opt/var/log/firewall.log"  "$SCRIPT_WEB_DIR/firewall.htm" 2>/dev/null
-	ln -s "/opt/var/log/openvpn.log"  "$SCRIPT_WEB_DIR/openvpn.htm" 2>/dev/null
+	while IFS='' read -r line || [ -n "$line" ]; do
+		ln -s "/opt/var/log/$line.log" "$SCRIPT_WEB_DIR/$line.htm" 2>/dev/null
+	done < "$SCRIPT_DIR/logs.txt"
 }
 
 Auto_Startup(){
@@ -206,85 +209,6 @@ Mount_WebUI(){
 	fi
 	
 	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" "/www/Main_LogStatus_Content.asp"
-}
-
-WriteOptions_ToJS(){
-	{
-	echo "var clients;"
-	echo "clients = [];"; } >> "$2"
-	contents=""
-	contents="$contents""clients.unshift("
-	while IFS='' read -r line || [ -n "$line" ]; do
-		contents="$contents""'""$(echo "$line" | awk '{$1=$1};1' | awk 'BEGIN{FS="  *"}{ print $2" ("$1")"}')""'"","
-	done < "$1"
-	contents=$(echo "$contents" | sed 's/.$//')
-	contents="$contents"");"
-	echo "$contents" >> "$2"
-	
-	{
-	echo "function SetClients(){"
-	echo "selectField = document.getElementById(\"clientdomains\");"
-	echo "selectField.options.length = 0;"
-	echo "for (i=0; i<clients.length; i++)"
-	echo "{"
-	echo "selectField.options[selectField.length] = new Option(clients[i], i);"
-	echo "}"
-	echo "}" ; } >> "$2"
-}
-
-WriteStats_ToJS(){
-	echo "function $3(){" >> "$2"
-	html='document.getElementById("'"$4"'").innerHTML="'
-	while IFS='' read -r line || [ -n "$line" ]; do
-		html="$html""$line""\\r\\n"
-	done < "$1"
-	html="$html"'"'
-	printf "%s\\r\\n}\\r\\n" "$html" >> "$2"
-}
-
-WriteData_ToJS(){
-	{
-	echo "var $3 , $4;"
-	echo "$3 = [];"
-	echo "$4 = [];"; } >> "$2"
-	contents=""
-	contents="$contents""$3"'.unshift('
-	while IFS='' read -r line || [ -n "$line" ]; do
-		contents="$contents""'""$(echo "$line" | awk '{$1=$1};1' | awk 'BEGIN{FS="  *"}{ print $1 }')""'"","
-	done < "$1"
-	contents=$(echo "$contents" | sed 's/.$//')
-	contents="$contents"");"
-	echo "$contents" >> "$2"
-
-	contents="$4"'.unshift('
-	while IFS='' read -r line || [ -n "$line" ]; do
-		contents="$contents""'""$(echo "$line" | awk '{$1=$1};1' | awk 'BEGIN{FS="  *"}{ print $2 }')""'"","
-	done < "$1"
-	contents=$(echo "$contents" | sed 's/.$//')
-	contents="$contents"");"
-	printf "%s\\r\\n\\r\\n" "$contents" >> "$2"
-}
-
-Generate_Stats_Diversion(){
-	Auto_Startup create 2>/dev/null
-	Shortcut_script create
-	Create_Dirs
-	Create_Symlinks
-	
-	Print_Output "true" "Starting Diversion statistic generation..." "$PASS"
-	
-	if [ -f "${DIVERSION_DIR}/.conf/diversion.conf" ] && [ -s /opt/var/log/dnsmasq.log ]; then
-		
-		#WriteData_ToJS /tmp/uidivstats/div-th "/tmp/uidivstats.js" "barDataDomains0" "barLabelsDomains0"
-		#WriteOptions_ToJS "$clientsFile" "/tmp/uidivstats.js"
-		#WriteStats_ToJS "/tmp/uidivtitle.txt" "/tmp/uidivstatstext.js" "SetDivStatsTitle" "statstitle"
-		
-		#ln -s "$SCRIPT_DIR/uidivstats.txt" "$SCRIPT_WEB_DIR/uidivstatstext.htm" 2>/dev/null
-		
-		Print_Output "true" "Diversion statistic generation completed successfully!" "$PASS"
-	else
-		Print_Output "true" "Diversion configuration not found or empty dnsmasq.log file, exiting!" "$ERR"
-	fi
 }
 
 Shortcut_script(){
@@ -453,8 +377,6 @@ Menu_Startup(){
 	Create_Dirs
 	Create_Symlinks
 	Mount_WebUI
-	syslog-ng --preprocess-into="$SCRIPT_DIR/logs.txt" && grep "file(\"" "$SCRIPT_DIR/logs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" |sed -e 's/file("\/opt\/var\/log\/\(.*\)");/\1/' | sed 's/\.log//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/logs.txt"
-	ln -s "$SCRIPT_DIR/logs.txt"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
 	Clear_Lock
 }
 

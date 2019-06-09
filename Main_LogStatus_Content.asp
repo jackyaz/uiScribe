@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge">
@@ -40,61 +40,64 @@ font-weight: bolder;
 <script language="JavaScript" type="text/javascript" src="/js/jquery.js"></script>
 <script>
 function showclock(){
-JS_timeObj.setTime(systime_millsec);
-systime_millsec += 1000;
-JS_timeObj2 = JS_timeObj.toString();
-JS_timeObj2 = JS_timeObj2.substring(0,3) + ", " +
-JS_timeObj2.substring(4,10) + " " +
-checkTime(JS_timeObj.getHours()) + ":" +
-checkTime(JS_timeObj.getMinutes()) + ":" +
-checkTime(JS_timeObj.getSeconds()) + " " +
-/*JS_timeObj.getFullYear() + " GMT" +
-timezone;*/ // Viz remove GMT timezone 2011.08
-JS_timeObj.getFullYear();
-document.getElementById("system_time").value = JS_timeObj2;
-setTimeout("showclock()", 1000);
-if(navigator.appName.indexOf("Microsoft") >= 0)
-document.getElementById("log_messages").style.width = "99%";
+	JS_timeObj.setTime(systime_millsec);
+	systime_millsec += 1000;
+	JS_timeObj2 = JS_timeObj.toString();
+	JS_timeObj2 = JS_timeObj2.substring(0,3) + ", " +
+	JS_timeObj2.substring(4,10) + " " +
+	checkTime(JS_timeObj.getHours()) + ":" +
+	checkTime(JS_timeObj.getMinutes()) + ":" +
+	checkTime(JS_timeObj.getSeconds()) + " " +
+	/*JS_timeObj.getFullYear() + " GMT" +
+	timezone;*/ // Viz remove GMT timezone 2011.08
+	JS_timeObj.getFullYear();
+	document.getElementById("system_time").value = JS_timeObj2;
+	setTimeout("showclock()", 1000);
+	if(navigator.appName.indexOf("Microsoft") >= 0)
+	document.getElementById("log_messages").style.width = "99%";
 }
 function showbootTime(){
-Days = Math.floor(boottime / (60*60*24));
-Hours = Math.floor((boottime / 3600) % 24);
-Minutes = Math.floor(boottime % 3600 / 60);
-Seconds = Math.floor(boottime % 60);
-document.getElementById("boot_days").innerHTML = Days;
-document.getElementById("boot_hours").innerHTML = Hours;
-document.getElementById("boot_minutes").innerHTML = Minutes;
-document.getElementById("boot_seconds").innerHTML = Seconds;
-boottime += 1;
-setTimeout("showbootTime()", 1000);
+	Days = Math.floor(boottime / (60*60*24));
+	Hours = Math.floor((boottime / 3600) % 24);
+	Minutes = Math.floor(boottime % 3600 / 60);
+	Seconds = Math.floor(boottime % 60);
+	document.getElementById("boot_days").innerHTML = Days;
+	document.getElementById("boot_hours").innerHTML = Hours;
+	document.getElementById("boot_minutes").innerHTML = Minutes;
+	document.getElementById("boot_seconds").innerHTML = Seconds;
+	boottime += 1;
+	setTimeout("showbootTime()", 1000);
 }
 function clearLog(){
-document.form1.target = "hidden_frame";
-document.form1.action_mode.value = " Clear ";
-document.form1.submit();
-location.href = location.href;
+	document.form1.target = "hidden_frame";
+	document.form1.action_mode.value = " Clear ";
+	document.form1.submit();
+	location.href = location.href;
 }
 function showDST(){
-var system_timezone_dut = "<% nvram_get("time_zone"); %>";
-if(system_timezone_dut.search("DST") >= 0 && "<% nvram_get("time_zone_dst"); %>" == "1"){
-document.getElementById('dstzone').style.display = "";
-document.getElementById('dstzone').innerHTML = "<#195#>";
+	var system_timezone_dut = "<% nvram_get("time_zone"); %>";
+	if(system_timezone_dut.search("DST") >= 0 && "<% nvram_get("time_zone_dst"); %>" == "1"){
+	document.getElementById('dstzone').style.display = "";
+	document.getElementById('dstzone').innerHTML = "<#195#>";
+	}
 }
+function capitalise(string){
+	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 function initial(){
-show_menu();
-showclock();
-showbootTime();
-showDST();
-get_all_logfiles();
+	show_menu();
+	showclock();
+	showbootTime();
+	showDST();
+	get_conf_file();
 }
 function applySettings(){
-document.config_form.submit();
+	document.config_form.submit();
 }
 function get_all_logfiles(){
 get_logfile("messages");
 get_logfile("firewall");
-get_logfile("openvpn");
+//get_logfile("openvpn");
 setTimeout("get_all_logfiles();", 5000);
 }
 function get_logfile(filename){
@@ -111,6 +114,53 @@ function get_logfile(filename){
 			}
 		}
 	});
+}
+function get_conf_file(){
+	$.ajax({
+		url: '/ext/uiScribe/logs.htm',
+		dataType: 'text',
+		error: function(xhr){
+			setTimeout("get_conf_file();", 1000);
+		},
+		success: function(data){
+			var logs=data.split("\n");
+			logs.sort();
+			logs.reverse();
+			logs=logs.filter(Boolean);
+			for (var i = 0; i < logs.length; i++) {
+				$("#table_messages").after(BuildLogTable(logs[i]));
+			}
+			AddEventHandlers();
+			get_all_logfiles();
+		}
+	});
+}
+function BuildLogTable(name){
+	var loghtml='<div style="line-height:10px;">&nbsp;</div>'
+	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name+'">'
+	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+capitalise(name)+' Messages</td></tr></thead>'
+	loghtml+='<tr><td style="padding: 0px;">'
+	loghtml+='<div class="collapsiblecontent">'
+	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>'
+	loghtml+='</div></td></tr></table>'
+	return loghtml;
+}
+function AddEventHandlers(){
+	var coll = document.getElementsByClassName("collapsible");
+	var i;
+
+	for (i = 0; i < coll.length; i++) {
+	  coll[i].addEventListener("click", function() {
+		this.classList.toggle("active");
+		var content = this.nextElementSibling.firstElementChild.firstElementChild.firstElementChild;
+		if (content.style.maxHeight){
+		  content.style.maxHeight = null;
+		} else {
+		  content.style.maxHeight = content.scrollHeight + "px";
+		}
+	  });
+	  coll[i].click();
+	}
 }
 </script>
 </head>
@@ -209,7 +259,7 @@ function get_logfile(filename){
 <div style="line-height:10px;">&nbsp;</div>
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh">Auto refresh</div>
 <div style="line-height:10px;">&nbsp;</div>
-<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable">
+<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
 <thead class="collapsible" >
 <tr>
 <td colspan="2">System Messages</td>
@@ -224,35 +274,6 @@ function get_logfile(filename){
 </tr>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
-<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable">
-<thead class="collapsible" >
-<tr>
-<td colspan="2">Firewall Messages</td>
-</tr>
-</thead>
-<tr>
-<td style="padding: 0px;">
-<div class="collapsiblecontent">
-<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_firewall" class="textarea_log_table" style="font-family:'Courier New', Courier, mono; font-size:11px;">Log goes here</textarea>
-</div>
-</td>
-</tr>
-</table>
-<div style="line-height:10px;">&nbsp;</div>
-<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable">
-<thead class="collapsible" >
-<tr>
-<td colspan="2">OpenVPN Messages</td>
-</tr>
-</thead>
-<tr>
-<td style="padding: 0px;">
-<div class="collapsiblecontent">
-<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_openvpn" class="textarea_log_table" style="font-family:'Courier New', Courier, mono; font-size:11px;">Log goes here</textarea>
-</div>
-</td>
-</tr>
-</table>
 </td>
 </tr>
 </table>
@@ -263,23 +284,6 @@ function get_logfile(filename){
 <td width="10" align="center" valign="top"></td>
 </tr>
 </table>
-<div id="footer"></div><script>
-var coll = document.getElementsByClassName("collapsible");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling.firstElementChild.firstElementChild.firstElementChild;
-    if (content.style.maxHeight){
-      content.style.maxHeight = null;
-    } else {
-      content.style.maxHeight = content.scrollHeight + "px";
-    }
-  });
-  coll[i].click();
-}
-</script>
+<div id="footer"></div>
 </body>
 </html>
-
