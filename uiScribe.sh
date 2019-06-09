@@ -100,9 +100,8 @@ Update_Version(){
 			Print_Output "true" "MD5 hash of $SCRIPT_NAME does not match - downloading updated $serverver" "$PASS"
 		fi
 		
-		Update_File "Main_LogStatus_Content.asp"
-		
 		if [ "$doupdate" != "false" ]; then
+			Update_File "Main_LogStatus_Content.asp"
 			/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" -o "/jffs/scripts/$SCRIPT_NAME" && Print_Output "true" "$SCRIPT_NAME successfully updated"
 			chmod 0755 /jffs/scripts/"$SCRIPT_NAME"
 			Clear_Lock
@@ -267,7 +266,6 @@ WriteData_ToJS(){
 }
 
 Generate_Stats_Diversion(){
-	
 	Auto_Startup create 2>/dev/null
 	Shortcut_script create
 	Create_Dirs
@@ -455,6 +453,8 @@ Menu_Startup(){
 	Create_Dirs
 	Create_Symlinks
 	Mount_WebUI
+	syslog-ng --preprocess-into="$SCRIPT_DIR/logs.txt" && grep "file(\"" "$SCRIPT_DIR/logs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" |sed -e 's/file("\/opt\/var\/log\/\(.*\)");/\1/' | sed 's/\.log//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/logs.txt"
+	ln -s "$SCRIPT_DIR/logs.txt"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
 	Clear_Lock
 }
 
