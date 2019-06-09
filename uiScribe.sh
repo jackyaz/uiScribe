@@ -156,6 +156,12 @@ Create_Dirs(){
 	fi
 }
 
+Create_Symlinks(){
+	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm"
+	ln -s "/opt/var/log/firewall.log"  "$SCRIPT_WEB_DIR/firewall.htm"
+	ln -s "/opt/var/log/openvpn.log"  "$SCRIPT_WEB_DIR/openvpn.htm"
+}
+
 Auto_Startup(){
 	case $1 in
 		create)
@@ -265,6 +271,7 @@ Generate_Stats_Diversion(){
 	Auto_Startup create 2>/dev/null
 	Shortcut_script create
 	Create_Dirs
+	Create_Symlinks
 	
 	Print_Output "true" "Starting Diversion statistic generation..." "$PASS"
 	
@@ -323,7 +330,7 @@ ScriptHeader(){
 	printf "\\e[1m##  | |_| || | ____) || (__ | |   | || |_) ||  __/  ##\\e[0m\\n"
 	printf "\\e[1m##   \__,_||_||_____/  \___||_|   |_||_.__/  \___|  ##\\e[0m\\n"
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
-	printf "\\e[1m##                %s on %-9s                    ##\\e[0m\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
+	printf "\\e[1m##               %s on %-9s                ##\\e[0m\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
 	printf "\\e[1m##        https://github.com/jackyaz/uiScribe       ##\\e[0m\\n"
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
@@ -436,6 +443,7 @@ Menu_Install(){
 	Auto_Startup create 2>/dev/null
 	Shortcut_script create
 	Create_Dirs
+	Create_Symlinks
 	Mount_WebUI
 	
 	Clear_Lock
@@ -445,6 +453,7 @@ Menu_Startup(){
 	Auto_Startup create 2>/dev/null
 	Shortcut_script create
 	Create_Dirs
+	Create_Symlinks
 	Mount_WebUI
 	Clear_Lock
 }
