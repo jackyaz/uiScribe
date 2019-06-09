@@ -94,10 +94,10 @@ function initial(){
 function applySettings(){
 	document.config_form.submit();
 }
+var logfilelist="";
 function get_all_logfiles(){
 get_logfile("messages");
-get_logfile("firewall");
-//get_logfile("openvpn");
+eval(logfilelist);
 setTimeout("get_all_logfiles();", 5000);
 }
 function get_logfile(filename){
@@ -127,8 +127,10 @@ function get_conf_file(){
 			logs.sort();
 			logs.reverse();
 			logs=logs.filter(Boolean);
+			logfilelist="";
 			for (var i = 0; i < logs.length; i++) {
 				$("#table_messages").after(BuildLogTable(logs[i]));
+				logfilelist+='get_logfile("'+logs[i]+'");';
 			}
 			AddEventHandlers();
 			get_all_logfiles();

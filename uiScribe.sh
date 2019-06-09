@@ -396,7 +396,8 @@ Menu_Uninstall(){
 	Auto_Startup delete 2>/dev/null
 	Shortcut_script delete
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
-	rm -f "$SCRIPT_DIR/Main_LogStatus_Content.asp" 2>/dev/null
+	rm -rf "$SCRIPT_DIR" 2>/dev/null
+	rm -rf "$SCRIPT_WEB_DIR" 2>/dev/null
 	rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
 	Clear_Lock
 	Print_Output "true" "Uninstall completed" "$PASS"
