@@ -238,7 +238,8 @@ function ToggleScroll(){
 <label style="padding-left:15px;">Port:</label><input type="text" class="input_6_table" maxlength="5" name="log_port" onKeyPress="return validator.isNumber(this,event);" onblur="validator.numberRange(this, 0, 65535);" value='<% nvram_get("log_port"); %>' autocorrect="off" autocapitalize="off">
 </td>
 </tr>
-<tr style="display:none;">
+<tr>
+<!--<tr style="display:none;">-->
 <th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(50,11);">Default message log level</a></th>
 <td>
 <select name="message_loglevel" class="input_option">
@@ -253,7 +254,8 @@ function ToggleScroll(){
 </select>
 </td>
 </tr>
-<tr style="display:none;">
+<tr>
+<!--<tr style="display:none;">-->
 <th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(50,12);">Log only messages more urgent than</a></th>
 <td>
 <select name="log_level" class="input_option">
@@ -269,7 +271,8 @@ function ToggleScroll(){
 </td>
 </tr>
 </table>
-<div class="apply_gen" valign="top" style="display:none;"><input class="button_gen" onclick="applySettings();" type="button" value="Apply" /></div>
+<div class="apply_gen" valign="top"><input class="button_gen" onclick="applySettings();" type="button" value="Apply" /></div>
+<!--<div class="apply_gen" valign="top" style="display:none;"><input class="button_gen" onclick="applySettings();" type="button" value="Apply" /></div>-->
 </form>
 <div style="line-height:10px;">&nbsp;</div>
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh">Auto refresh</div>
