@@ -133,8 +133,9 @@ function get_conf_file(){
 			logs=logs.filter(Boolean);
 			logfilelist="";
 			for (var i = 0; i < logs.length; i++) {
-				$("#table_messages").after(BuildLogTable(logs[i]));
-				logfilelist+='get_logfile("'+logs[i]+'");';
+				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1,logs[i].length-logs[i].substring(logs[i].lastIndexOf("/")+1).indexOf("."))
+				$("#table_messages").after(BuildLogTable(filename));
+				logfilelist+='get_logfile("'+filename+'");';
 			}
 			AddEventHandlers();
 			get_all_logfiles();

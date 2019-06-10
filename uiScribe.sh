@@ -156,13 +156,14 @@ Create_Dirs(){
 }
 
 Create_Symlinks(){
-	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep "file(\"" "$SCRIPT_DIR/tmplogs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" |sed -e 's/file("\/opt\/var\/log\/\(.*\)");/\1/' | sed 's/\.log//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
+	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep "file(\"" "$SCRIPT_DIR/tmplogs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" | sed -e 's/file("\(.*\)");/\1/' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
 	rm -f "$SCRIPT_DIR/tmplogs.txt" 2>/dev/null
 	rm -f "$SCRIPT_DIR/logs.txt" 2>/dev/null
 	ln -s "$SCRIPT_DIR/.logs"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
 	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 	while IFS='' read -r line || [ -n "$line" ]; do
-		ln -s "/opt/var/log/$line.log" "$SCRIPT_WEB_DIR/$line.htm" 2>/dev/null
+		rm -f "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
+		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
 }
 
