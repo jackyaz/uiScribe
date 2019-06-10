@@ -144,7 +144,7 @@ function get_conf_file(){
 function BuildLogTable(name){
 	var loghtml='<div style="line-height:10px;">&nbsp;</div>'
 	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name+'">'
-	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+capitalise(name)+' Messages</td></tr></thead>'
+	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+capitalise(name)+' Messages (click to show/hide)</td></tr></thead>'
 	loghtml+='<tr><td style="padding: 0px;">'
 	loghtml+='<div class="collapsiblecontent">'
 	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>'
