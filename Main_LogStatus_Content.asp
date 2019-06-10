@@ -278,7 +278,7 @@ function ToggleScroll(){
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
 <thead class="collapsible" >
 <tr>
-<td colspan="2">System Messages</td>
+<td colspan="2">System Messages (click to show/hide)</td>
 </tr>
 </thead>
 <tr>
