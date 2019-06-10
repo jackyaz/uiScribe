@@ -96,9 +96,11 @@ function applySettings(){
 }
 var logfilelist="";
 function get_all_logfiles(){
-get_logfile("messages");
-eval(logfilelist);
-setTimeout("get_all_logfiles();", 5000);
+	get_logfile("messages");
+	eval(logfilelist);
+	if(document.getElementById("auto_refresh").checked){
+		setTimeout("get_all_logfiles();", 5000);
+	}
 }
 function get_logfile(filename){
 	$.ajax({
@@ -108,9 +110,11 @@ function get_logfile(filename){
 			setTimeout("get_logfile("+filename+");", 1000);
 		},
 		success: function(data){
-			if((document.getElementById("auto_refresh").checked)){
+			if(document.getElementById("auto_refresh").checked){
 				document.getElementById("log_"+filename).innerHTML = data;
-				$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
+				if (document.getElementById("auto_scroll").checked){
+					$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
+				}
 			}
 		}
 	});
@@ -150,19 +154,28 @@ function BuildLogTable(name){
 function AddEventHandlers(){
 	var coll = document.getElementsByClassName("collapsible");
 	var i;
-
+	
 	for (i = 0; i < coll.length; i++) {
-	  coll[i].addEventListener("click", function() {
-		this.classList.toggle("active");
-		var content = this.nextElementSibling.firstElementChild.firstElementChild.firstElementChild;
-		if (content.style.maxHeight){
-		  content.style.maxHeight = null;
-		} else {
-		  content.style.maxHeight = content.scrollHeight + "px";
-		}
-	  });
-	  coll[i].click();
+		coll[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+			var content = this.nextElementSibling.firstElementChild.firstElementChild.firstElementChild;
+			if (content.style.maxHeight){
+				content.style.maxHeight = null;
+			} else {
+				content.style.maxHeight = content.scrollHeight + "px";
+			}
+		});
+		coll[i].click();
 	}
+	
+	$("#auto_refresh")[0].addEventListener("click", function(){ToggleRefresh();});
+	$("#auto_refresh")[0].addEventListener("click", function(){ToggleScroll();});
+}
+function ToggleRefresh(){
+	$("#auto_scroll").prop('disabled', function(i, v) { if (v) {get_all_logfiles();} });
+}
+function ToggleScroll(){
+	$("#auto_scroll").prop('disabled', function(i, v) { return !v; });
 }
 </script>
 </head>
@@ -260,6 +273,7 @@ function AddEventHandlers(){
 </form>
 <div style="line-height:10px;">&nbsp;</div>
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh">Auto refresh</div>
+<div style="color:#FFCC00;"><input type="checkbox" checked id="auto_scroll">Scroll to bottom on refresh?</div>
 <div style="line-height:10px;">&nbsp;</div>
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
 <thead class="collapsible" >
