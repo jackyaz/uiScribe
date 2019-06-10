@@ -156,7 +156,7 @@ Create_Dirs(){
 }
 
 Create_Symlinks(){
-	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep "file(\"" "$SCRIPT_DIR/tmplogs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" | sed -e 's/file("\(.*\)");/\1/' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
+	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep "file(\"" "$SCRIPT_DIR/tmplogs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" | grep -v "program_override" | sed -e 's/file("\(.*\)");/\1/' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
 	rm -f "$SCRIPT_DIR/tmplogs.txt" 2>/dev/null
 	rm -f "$SCRIPT_DIR/logs.txt" 2>/dev/null
 	ln -s "$SCRIPT_DIR/.logs"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
