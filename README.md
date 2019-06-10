@@ -2,8 +2,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c705507fb1d845d9937e98f0b6e15997)](https://www.codacy.com/app/jackyaz/uiScribe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jackyaz/uiScribe&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.com/jackyaz/uiScribe.svg?branch=master)](https://travis-ci.com/jackyaz/uiScribe)
 
-## v0.3.0
-### Updated on 2019-06-10
+## v0.4.0
+### Updated on 2019-06-11
 ## About
 Customise the System Log page to show log files created by Scribe (syslog-ng). Requires [**Scribe**](https://github.com/cynicastic/scribe)
 Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforums.com/threads/scribe-syslog-ng-and-logrotate-installer.55853/)
@@ -11,7 +11,7 @@ Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforum
 uiScribe is free to use under the [GNU General Public License version 3](https://opensource.org/licenses/GPL-3.0) (GPL 3.0).
 
 Example log page (sections added/removed dynamically depending on which filters you have installed in Scribe)
-![Menu UI]https://puu.sh/DE3ou/7b836b07d5.png
+![Menu UI](https://puu.sh/DE3ou/7b836b07d5.png)
 
 ### Supporting development
 Love the script and want to support future development? Any and all donations gratefully received!

@@ -111,10 +111,18 @@ function get_logfile(filename){
 		},
 		success: function(data){
 			if(document.getElementById("auto_refresh").checked){
-				document.getElementById("log_"+filename).innerHTML = data;
-				if (document.getElementById("auto_scroll").checked){
-					$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
+				if(filename!="messages"){
+					document.getElementById("log_"+filename.substring(0,filename.indexOf("."))).innerHTML = data;
+					if (document.getElementById("auto_scroll").checked){
+						$("#log_"+filename.substring(0,filename.indexOf("."))).animate({ scrollTop: 9999999 }, "slow");
+					}
+				} else {
+					document.getElementById("log_"+filename).innerHTML = data;
+					if (document.getElementById("auto_scroll").checked){
+						$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
+					}
 				}
+				
 			}
 		}
 	});
@@ -144,11 +152,11 @@ function get_conf_file(){
 }
 function BuildLogTable(name){
 	var loghtml='<div style="line-height:10px;">&nbsp;</div>'
-	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name+'">'
+	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name.substring(0,name.indexOf("."))+'">'
 	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>'
 	loghtml+='<tr><td style="padding: 0px;">'
 	loghtml+='<div class="collapsiblecontent">'
-	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>'
+	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>'
 	loghtml+='</div></td></tr></table>'
 	return loghtml;
 }
@@ -166,7 +174,6 @@ function AddEventHandlers(){
 				content.style.maxHeight = content.scrollHeight + "px";
 			}
 		});
-		coll[i].click();
 	}
 	
 	$("#auto_refresh")[0].addEventListener("click", function(){ToggleRefresh();});
@@ -177,6 +184,20 @@ function ToggleRefresh(){
 }
 function ToggleScroll(){
 	$("#auto_scroll").prop('disabled', function(i, v) { return !v; });
+}
+function ResizeAll(action){
+	var coll = document.getElementsByClassName("collapsible");
+	var i;
+	
+	for (i = 0; i < coll.length; i++) {
+		if(action=="show"){
+			coll[i].classList.add("active");
+			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.scrollHeight+"px"
+		} else {
+			coll[i].classList.remove("active");
+			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=null
+		}
+	}
 }
 </script>
 </head>
@@ -278,6 +299,20 @@ function ToggleScroll(){
 <div style="line-height:10px;">&nbsp;</div>
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh">Auto refresh</div>
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_scroll">Scroll to bottom on refresh?</div>
+<table class="apply_gen">
+<tr class="apply_gen" valign="top">
+<td  align="right">
+<form name="formui_show">
+<input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onClick="ResizeAll('show')">
+</form>
+</td>
+<td align="left">
+<form name="formui_hide">
+<input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen"  onClick="ResizeAll('hide')">
+</form>
+</td>
+</tr>
+</table>
 <div style="line-height:10px;">&nbsp;</div>
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
 <thead class="collapsible" >
