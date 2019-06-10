@@ -42,7 +42,7 @@ If this does not work, you will need to use the full path:
 Launch uiScribe and select option u
 
 ## Help
-Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/scribe-syslog-ng-and-logrotate-installer.55853/)
+Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/beta-uiscribe-custom-system-log-page-for-scribed-logs.57040/)
 
 ## FAQs
 ### I haven't used scripts before on AsusWRT-Merlin
