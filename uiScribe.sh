@@ -163,7 +163,7 @@ Create_Symlinks(){
 	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 	while IFS='' read -r line || [ -n "$line" ]; do
 		ln -s "/opt/var/log/$line.log" "$SCRIPT_WEB_DIR/$line.htm" 2>/dev/null
-	done < "$SCRIPT_DIR/logs.txt"
+	done < "$SCRIPT_DIR/.logs"
 }
 
 Auto_Startup(){
@@ -361,8 +361,6 @@ Menu_Install(){
 		rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
 		exit 1
 	fi
-	
-	opkg update
 	
 	Auto_Startup create 2>/dev/null
 	Shortcut_script create
