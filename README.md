@@ -9,6 +9,9 @@ Customise the System Log page to show log files created by Scribe (syslog-ng). R
 
 uiScribe is free to use under the [GNU General Public License version 3](https://opensource.org/licenses/GPL-3.0) (GPL 3.0).
 
+Example log page (sections added/removed dynamically depending on which filters you have installed in Scribe)
+![Menu UI]https://puu.sh/DE3ou/7b836b07d5.png
+
 ### Supporting development
 Love the script and want to support future development? Any and all donations gratefully received!
 [**PayPal donation**](https://paypal.me/jackyaz21)
