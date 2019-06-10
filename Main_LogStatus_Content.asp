@@ -133,7 +133,7 @@ function get_conf_file(){
 			logs=logs.filter(Boolean);
 			logfilelist="";
 			for (var i = 0; i < logs.length; i++) {
-				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1,logs[i].length-logs[i].substring(logs[i].lastIndexOf("/")+1).indexOf("."))
+				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
 				logfilelist+='get_logfile("'+filename+'");';
 			}
@@ -145,7 +145,7 @@ function get_conf_file(){
 function BuildLogTable(name){
 	var loghtml='<div style="line-height:10px;">&nbsp;</div>'
 	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name+'">'
-	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+capitalise(name)+' Messages (click to show/hide)</td></tr></thead>'
+	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>'
 	loghtml+='<tr><td style="padding: 0px;">'
 	loghtml+='<div class="collapsiblecontent">'
 	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>'
