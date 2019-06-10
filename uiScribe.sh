@@ -368,6 +368,8 @@ Menu_Install(){
 	Create_Symlinks
 	Mount_WebUI
 	
+	Print_Output "true" "uiScribe installed successfully!" "$PASS"
+	
 	Clear_Lock
 }
 
