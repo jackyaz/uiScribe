@@ -15,7 +15,7 @@
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
-readonly SCRIPT_VERSION="v0.4.1"
+readonly SCRIPT_VERSION="v0.4.2"
 readonly SCRIPT_BRANCH="master"
 readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/""$SCRIPT_NAME""/""$SCRIPT_BRANCH"
 readonly SCRIPT_CONF="/jffs/configs/$SCRIPT_NAME.config"
@@ -156,13 +156,13 @@ Create_Dirs(){
 }
 
 Create_Symlinks(){
-	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep "file(\"" "$SCRIPT_DIR/tmplogs.txt" | grep "\/var\/log" | grep -v "#" | grep -v "messages" | grep -v "program_override" | sed -e 's/file("\(.*\)");/\1/' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
+	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep -A 1 "destination" "$SCRIPT_DIR/tmplogs.txt" | grep "file(\"" | grep -v "#" | grep -v "messages" | sed -e 's/file("//;s/".*$//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
 	rm -f "$SCRIPT_DIR/tmplogs.txt" 2>/dev/null
 	rm -f "$SCRIPT_DIR/logs.txt" 2>/dev/null
+	rm -f "$SCRIPT_WEB_DIR/*" 2>/dev/null
 	ln -s "$SCRIPT_DIR/.logs"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
 	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 	while IFS='' read -r line || [ -n "$line" ]; do
-		rm -f "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
 }
