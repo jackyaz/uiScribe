@@ -260,7 +260,7 @@ function ResizeAll(action){
 <label style="padding-left:15px;">Port:</label><input type="text" class="input_6_table" maxlength="5" name="log_port" onKeyPress="return validator.isNumber(this,event);" onblur="validator.numberRange(this, 0, 65535);" value='<% nvram_get("log_port"); %>' autocorrect="off" autocapitalize="off">
 </td>
 </tr>
-<<tr style="display:none;">
+<tr style="display:none;">
 <th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(50,11);">Default message log level</a></th>
 <td>
 <select name="message_loglevel" class="input_option">
@@ -300,12 +300,12 @@ function ResizeAll(action){
 <tr class="apply_gen" valign="top">
 <td  align="right">
 <form name="formui_show">
-<input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onClick="ResizeAll('show')">
+<input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onClick="ResizeAll('show')" type="button">
 </form>
 </td>
 <td align="left">
 <form name="formui_hide">
-<input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen"  onClick="ResizeAll('hide')">
+<input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen"  onClick="ResizeAll('hide')" type="button">
 </form>
 </td>
 </tr>
