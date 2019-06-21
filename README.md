@@ -2,8 +2,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c705507fb1d845d9937e98f0b6e15997)](https://www.codacy.com/app/jackyaz/uiScribe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jackyaz/uiScribe&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.com/jackyaz/uiScribe.svg?branch=master)](https://travis-ci.com/jackyaz/uiScribe)
 
-## v0.4.2
-### Updated on 2019-06-11
+## v1.0.0
+### Updated on 2019-06-21
 ## About
 Customise the System Log page to show log files created by Scribe (syslog-ng). Requires [**Scribe**](https://github.com/cynicastic/scribe)
 Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforums.com/threads/scribe-syslog-ng-and-logrotate-installer.55853/)
@@ -43,7 +43,7 @@ If this does not work, you will need to use the full path:
 Launch uiScribe and select option u
 
 ## Help
-Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/beta-uiscribe-custom-system-log-page-for-scribed-logs.57040/)
+Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/uiscribe-custom-system-log-page-for-scribed-logs.57040/)
 
 ## FAQs
 ### I haven't used scripts before on AsusWRT-Merlin
