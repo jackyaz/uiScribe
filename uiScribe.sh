@@ -264,6 +264,7 @@ ScriptHeader(){
 }
 
 MainMenu(){
+	printf "r.    Process Scribe logs for uiScribe now\\n\\n"
 	printf "u.    Check for updates\\n"
 	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
