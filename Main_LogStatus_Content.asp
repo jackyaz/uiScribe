@@ -141,6 +141,10 @@ function get_conf_file(){
 			logs=logs.filter(Boolean);
 			logfilelist="";
 			for (var i = 0; i < logs.length; i++) {
+				var commentstart=logs[i].indexOf("#");
+				if (commentstart != -1){
+					continue
+				}
 				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
 				logfilelist+='get_logfile("'+filename+'");';

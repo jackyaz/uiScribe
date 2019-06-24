@@ -15,7 +15,7 @@
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
-readonly SCRIPT_VERSION="v1.0.0"
+readonly SCRIPT_VERSION="v1.1.0"
 readonly SCRIPT_BRANCH="master"
 readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/""$SCRIPT_NAME""/""$SCRIPT_BRANCH"
 readonly SCRIPT_CONF="/jffs/configs/$SCRIPT_NAME.config"
@@ -141,6 +141,18 @@ Update_File(){
 	fi
 }
 
+Validate_Number(){
+	if [ "$2" -eq "$2" ] 2>/dev/null; then
+		return 0
+	else
+		formatted="$(echo "$1" | sed -e 's/|/ /g')"
+		if [ -z "$3" ]; then
+			Print_Output "false" "$formatted - $2 is not a number" "$ERR"
+		fi
+		return 1
+	fi
+}
+
 Create_Dirs(){
 	if [ ! -d "$SCRIPT_DIR" ]; then
 		mkdir -p "$SCRIPT_DIR"
@@ -158,13 +170,77 @@ Create_Dirs(){
 Create_Symlinks(){
 	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep -A 1 "destination" "$SCRIPT_DIR/tmplogs.txt" | grep "file(\"" | grep -v "#" | grep -v "messages" | sed -e 's/file("//;s/".*$//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
 	rm -f "$SCRIPT_DIR/tmplogs.txt" 2>/dev/null
-	rm -f "$SCRIPT_DIR/logs.txt" 2>/dev/null
+	
+	if [ "$1" = "force" ]; then
+		rm -f "$SCRIPT_DIR/.logs_user"
+	fi
+	
+	if [ ! -f "$SCRIPT_DIR/.logs_user" ]; then
+		touch "$SCRIPT_DIR/.logs_user"
+	fi
+	
+	while IFS='' read -r line || [ -n "$line" ]; do
+		if [ "$(grep -c "$line" "$SCRIPT_DIR/.logs_user")" -eq 0 ]; then
+				printf "%s\\n" "$line" >> "$SCRIPT_DIR/.logs_user"
+		fi
+	done < "$SCRIPT_DIR/.logs"
+	
+	
 	rm -f "$SCRIPT_WEB_DIR/"* 2>/dev/null
-	ln -s "$SCRIPT_DIR/.logs"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
+	ln -s "$SCRIPT_DIR/.logs_user"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
 	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 	while IFS='' read -r line || [ -n "$line" ]; do
 		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
+}
+
+Generate_Log_List(){
+	ScriptHeader
+	goback="false"
+	printf "Retrieving list of log files...\\n\\n"
+	logcount="$(wc -l < "$SCRIPT_DIR/.logs_user")"
+	COUNTER=1
+	until [ $COUNTER -gt "$logcount" ]; do
+		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs_user" | awk '{$1=$1};1')"
+		if [ "$COUNTER" -lt "10" ]; then
+			printf "%s)  %s\\n" "$COUNTER" "$logfile"
+		else
+			printf "%s) %s\\n" "$COUNTER" "$logfile"
+		fi
+		COUNTER=$((COUNTER + 1))
+	done
+	
+	printf "\\ne)  Go back\\n"
+	
+	while true; do
+	printf "\\n\\e[1mPlease select a log to toggle inclusion in %s (1-%s):\\e[0m\\n" "$SCRIPT_NAME" "$logcount"
+	read -r "log"
+	
+	if [ "$log" = "e" ]; then
+		goback="true"
+		break
+	elif ! Validate_Number "" "$log" "silent"; then
+		printf "\\n\\e[31mPlease enter a valid number (1-%s)\\e[0m\\n" "$logcount"
+	else
+		if [ "$log" -lt 1 ] || [ "$log" -gt "$logcount" ]; then
+			printf "\\n\\e[31mPlease enter a number between 1 and %s\\e[0m\\n" "$logcount"
+		else
+			logline="$(sed "$log!d" "$SCRIPT_DIR/.logs_user" | awk '{$1=$1};1')"
+			if echo "$logline" | grep -q "#excluded#" ; then
+					sed -i "$log"'s/ #excluded#//' "$SCRIPT_DIR/.logs_user"
+			else
+				sed -i "$log"'s/$/ #excluded#/' "$SCRIPT_DIR/.logs_user"
+			fi
+			sed -i 's/ *$//' "$SCRIPT_DIR/.logs_user"
+			printf "\\n"
+			break
+		fi
+	fi
+	done
+	
+	if [ "$goback" != "true" ]; then
+		Generate_Log_List
+	fi
 }
 
 Auto_Startup(){
@@ -264,6 +340,9 @@ ScriptHeader(){
 }
 
 MainMenu(){
+	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
+	printf "r.    Process Scribe logs for %s\\n" "$SCRIPT_NAME"
+	printf "rf.   Clear user preferences for displayed logs\\n\\n"
 	printf "u.    Check for updates\\n"
 	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
@@ -276,6 +355,27 @@ MainMenu(){
 		printf "Choose an option:    "
 		read -r "menu"
 		case "$menu" in
+			1)
+				if Check_Lock "menu"; then
+					Menu_CustomiseLogList
+				fi
+				PressEnter
+				break
+			;;
+			r)
+				if Check_Lock "menu"; then
+					Menu_ProcessUIScripts
+				fi
+				PressEnter
+				break
+			;;
+			rf)
+				if Check_Lock "menu"; then
+					Menu_ProcessUIScripts "force"
+				fi
+				PressEnter
+				break
+			;;
 			u)
 				printf "\\n"
 				if Check_Lock "menu"; then
@@ -371,6 +471,18 @@ Menu_Install(){
 	
 	Print_Output "true" "uiScribe installed successfully!" "$PASS"
 	
+	Clear_Lock
+}
+
+Menu_CustomiseLogList(){
+	Generate_Log_List
+	printf "\\n"
+	Clear_Lock
+}
+
+Menu_ProcessUIScripts(){
+	Create_Symlinks "$1"
+	printf "\\n"
 	Clear_Lock
 }
 
