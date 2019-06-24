@@ -213,7 +213,7 @@ Generate_Log_List(){
 	printf "\\ne)  Go back\\n"
 	
 	while true; do
-	printf "\\n\\e[1mPlease select a log from the list above (1-%s):\\e[0m\\n" "$logcount"
+	printf "\\n\\e[1mPlease select a log to toggle inclusion in %s (1-%s):\\e[0m\\n" "$SCRIPT_NAME" "$logcount"
 	read -r "log"
 	
 	if [ "$log" = "e" ]; then
