@@ -195,6 +195,8 @@ Create_Symlinks(){
 }
 
 Generate_Log_List(){
+	ScriptHeader
+	goback="false"
 	printf "Retrieving list of log files...\\n\\n"
 	logcount="$(wc -l < "$SCRIPT_DIR/.logs_user")"
 	COUNTER=1
@@ -215,6 +217,7 @@ Generate_Log_List(){
 	read -r "log"
 	
 	if [ "$log" = "e" ]; then
+		goback="true"
 		break
 	elif ! Validate_Number "" "$log" "silent"; then
 		printf "\\n\\e[31mPlease enter a valid number (1-%s)\\e[0m\\n" "$logcount"
@@ -222,13 +225,23 @@ Generate_Log_List(){
 		if [ "$log" -lt 1 ] || [ "$log" -gt "$logcount" ]; then
 			printf "\\n\\e[31mPlease enter a number between 1 and %s\\e[0m\\n" "$logcount"
 		else
-			#serverno="$(echo "$serverlist" | sed "$server!d" | cut -f1 -d')' | awk '{$1=$1};1')"
-			#servername="$(echo "$serverlist" | sed "$server!d" | cut -f2 -d')' | awk '{$1=$1};1')"")"
+			logline="$(sed "$log!d" "$SCRIPT_DIR/.logs_user" | awk '{$1=$1};1')"
+			if echo "$logline" | grep -q "#excluded#" ; then
+					sed -i "$log"'s/ #excluded#//' "$SCRIPT_DIR/.logs_user"
+			else
+				sed -i "$log"'s/$/ #excluded#/' "$SCRIPT_DIR/.logs_user"
+			fi
 			printf "\\n"
 			break
 		fi
 	fi
 	done
+	
+	if [ "$goback" != "true" ]; then
+		Generate_Log_List
+	else
+		Create_Symlinks
+	fi
 }
 
 Auto_Startup(){
