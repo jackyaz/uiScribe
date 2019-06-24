@@ -141,6 +141,18 @@ Update_File(){
 	fi
 }
 
+Validate_Number(){
+	if [ "$2" -eq "$2" ] 2>/dev/null; then
+		return 0
+	else
+		formatted="$(echo "$1" | sed -e 's/|/ /g')"
+		if [ -z "$3" ]; then
+			Print_Output "false" "$formatted - $2 is not a number" "$ERR"
+		fi
+		return 1
+	fi
+}
+
 Create_Dirs(){
 	if [ ! -d "$SCRIPT_DIR" ]; then
 		mkdir -p "$SCRIPT_DIR"
@@ -180,6 +192,23 @@ Create_Symlinks(){
 	while IFS='' read -r line || [ -n "$line" ]; do
 		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
+}
+
+GenerateLogList(){
+	printf "Retrieving list of log files...\\n\\n"
+	logcount="$(cat "$SCRIPT_DIR/.logs_user" | wc -l)"
+	COUNTER=1
+	until [ $COUNTER -gt "$logcount" ]; do
+		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs" | awk '{$1=$1};1')"
+		if [ "$COUNTER" -lt "10" ]; then
+			printf "%s)  %s\\n" "$COUNTER" "$logfile"
+		else
+			printf "%s) %s\\n" "$COUNTER" "$logfile"
+		fi
+		COUNTER=$((COUNTER + 1))
+	done
+	
+	printf "\\ne)  Go back\\n"
 }
 
 Auto_Startup(){
@@ -296,7 +325,7 @@ MainMenu(){
 		case "$menu" in
 			1)
 				if Check_Lock "menu"; then
-					Menu_ProcessUIScripts
+					GenerateLogList
 				fi
 				PressEnter
 				break
