@@ -209,6 +209,26 @@ GenerateLogList(){
 	done
 	
 	printf "\\ne)  Go back\\n"
+	
+	while true; do
+	printf "\\n\\e[1mPlease select a log from the list above (1-$logcount):\\e[0m\\n"
+	read -r "log"
+	
+	if [ "$log" = "e" ]; then
+		break
+	elif ! Validate_Number "" "$log" "silent"; then
+		printf "\\n\\e[31mPlease enter a valid number (1-$logcount)\\e[0m\\n"
+	else
+		if [ "$log" -lt 1 ] || [ "$log" -gt "$logcount" ]; then
+			printf "\\n\\e[31mPlease enter a number between 1 and $logcount\\e[0m\\n"
+		else
+			#serverno="$(echo "$serverlist" | sed "$server!d" | cut -f1 -d')' | awk '{$1=$1};1')"
+			#servername="$(echo "$serverlist" | sed "$server!d" | cut -f2 -d')' | awk '{$1=$1};1')"")"
+			printf "\\n"
+			break
+		fi
+	fi
+	done
 }
 
 Auto_Startup(){
@@ -308,7 +328,7 @@ ScriptHeader(){
 }
 
 MainMenu(){
-	printf "1.    Check for updates\\n\\n"
+	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
 	printf "r.    Process Scribe logs for %s\\n" "$SCRIPT_NAME"
 	printf "rf.   Clear user preferences and process Scribe logs for %s\\n\\n" "$SCRIPT_NAME"
 	printf "u.    Check for updates\\n"
@@ -325,7 +345,7 @@ MainMenu(){
 		case "$menu" in
 			1)
 				if Check_Lock "menu"; then
-					GenerateLogList
+					Menu_CustomiseLogList
 				fi
 				PressEnter
 				break
@@ -439,6 +459,12 @@ Menu_Install(){
 	
 	Print_Output "true" "uiScribe installed successfully!" "$PASS"
 	
+	Clear_Lock
+}
+
+Menu_CustomiseLogList(){
+	GenerateLogList
+	printf "\\n"
 	Clear_Lock
 }
 
