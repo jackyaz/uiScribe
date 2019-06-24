@@ -194,12 +194,12 @@ Create_Symlinks(){
 	done < "$SCRIPT_DIR/.logs"
 }
 
-GenerateLogList(){
+Generate_Log_List(){
 	printf "Retrieving list of log files...\\n\\n"
 	logcount="$(cat "$SCRIPT_DIR/.logs_user" | wc -l)"
 	COUNTER=1
 	until [ $COUNTER -gt "$logcount" ]; do
-		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs" | awk '{$1=$1};1')"
+		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs_user" | awk '{$1=$1};1')"
 		if [ "$COUNTER" -lt "10" ]; then
 			printf "%s)  %s\\n" "$COUNTER" "$logfile"
 		else
@@ -463,7 +463,7 @@ Menu_Install(){
 }
 
 Menu_CustomiseLogList(){
-	GenerateLogList
+	Generate_Log_List
 	printf "\\n"
 	Clear_Lock
 }
