@@ -196,7 +196,7 @@ Create_Symlinks(){
 
 Generate_Log_List(){
 	printf "Retrieving list of log files...\\n\\n"
-	logcount="$(cat "$SCRIPT_DIR/.logs_user" | wc -l)"
+	logcount="$(wc -l < "$SCRIPT_DIR/.logs_user")"
 	COUNTER=1
 	until [ $COUNTER -gt "$logcount" ]; do
 		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs_user" | awk '{$1=$1};1')"
@@ -211,16 +211,16 @@ Generate_Log_List(){
 	printf "\\ne)  Go back\\n"
 	
 	while true; do
-	printf "\\n\\e[1mPlease select a log from the list above (1-$logcount):\\e[0m\\n"
+	printf "\\n\\e[1mPlease select a log from the list above (1-%s):\\e[0m\\n" "$logcount"
 	read -r "log"
 	
 	if [ "$log" = "e" ]; then
 		break
 	elif ! Validate_Number "" "$log" "silent"; then
-		printf "\\n\\e[31mPlease enter a valid number (1-$logcount)\\e[0m\\n"
+		printf "\\n\\e[31mPlease enter a valid number (1-%s)\\e[0m\\n" "$logcount"
 	else
 		if [ "$log" -lt 1 ] || [ "$log" -gt "$logcount" ]; then
-			printf "\\n\\e[31mPlease enter a number between 1 and $logcount\\e[0m\\n"
+			printf "\\n\\e[31mPlease enter a number between 1 and %s\\e[0m\\n" "$logcount"
 		else
 			#serverno="$(echo "$serverlist" | sed "$server!d" | cut -f1 -d')' | awk '{$1=$1};1')"
 			#servername="$(echo "$serverlist" | sed "$server!d" | cut -f2 -d')' | awk '{$1=$1};1')"")"
