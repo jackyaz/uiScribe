@@ -239,8 +239,6 @@ Generate_Log_List(){
 	
 	if [ "$goback" != "true" ]; then
 		Generate_Log_List
-	else
-		Create_Symlinks
 	fi
 }
 
