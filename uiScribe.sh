@@ -294,11 +294,15 @@ MainMenu(){
 				if Check_Lock "menu"; then
 					Menu_ProcessUIScripts
 				fi
+				PressEnter
+				break
 			;;
 			r)
 				if Check_Lock "menu"; then
 					Menu_ProcessUIScripts
 				fi
+				PressEnter
+				break
 			;;
 			u)
 				printf "\\n"
