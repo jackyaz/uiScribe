@@ -199,7 +199,7 @@ Generate_Log_List(){
 	logcount="$(cat "$SCRIPT_DIR/.logs_user" | wc -l)"
 	COUNTER=1
 	until [ $COUNTER -gt "$logcount" ]; do
-		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs_user" | sed 's@.*/@@;s/\..*//' | awk '{$1=$1};1')"
+		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs_user" | sed 's@.*/@@;s/\..* #/ #/' | awk '{$1=$1};1')"
 		if [ "$COUNTER" -lt "10" ]; then
 			printf "%s)  %s\\n" "$COUNTER" "$logfile"
 		else
