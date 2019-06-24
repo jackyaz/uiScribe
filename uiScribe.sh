@@ -231,6 +231,7 @@ Generate_Log_List(){
 			else
 				sed -i "$log"'s/$/ #excluded#/' "$SCRIPT_DIR/.logs_user"
 			fi
+			sed -i 's/ *$//' "$SCRIPT_DIR/.logs_user"
 			printf "\\n"
 			break
 		fi
