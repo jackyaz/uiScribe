@@ -141,7 +141,7 @@ function get_conf_file(){
 			logs=logs.filter(Boolean);
 			logfilelist="";
 			for (var i = 0; i < logs.length; i++) {
-				var commentstart=logs[i].substring(logs[i].indexOf("#"));
+				var commentstart=logs[i].indexOf("#");
 				if (commentstart != -1){
 					continue
 				}
