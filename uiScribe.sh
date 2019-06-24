@@ -276,6 +276,11 @@ MainMenu(){
 		printf "Choose an option:    "
 		read -r "menu"
 		case "$menu" in
+			r)
+				if Check_Lock "menu"; then
+					Menu_ProcessUIScripts
+				fi
+			;;
 			u)
 				printf "\\n"
 				if Check_Lock "menu"; then
@@ -371,6 +376,11 @@ Menu_Install(){
 	
 	Print_Output "true" "uiScribe installed successfully!" "$PASS"
 	
+	Clear_Lock
+}
+
+Menu_ProcessUIScripts(){
+	Create_Symlinks
 	Clear_Lock
 }
 
