@@ -145,7 +145,7 @@ function get_conf_file(){
 				if (commentstart != -1){
 					continue
 				}
-				var filename==logs[i].substring(logs[i].lastIndexOf("/")+1);
+				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
 				logfilelist+='get_logfile("'+filename+'");';
 			}
