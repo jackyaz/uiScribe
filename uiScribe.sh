@@ -330,7 +330,7 @@ ScriptHeader(){
 MainMenu(){
 	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
 	printf "r.    Process Scribe logs for %s\\n" "$SCRIPT_NAME"
-	printf "rf.   Clear user preferences and process Scribe logs for %s\\n\\n" "$SCRIPT_NAME"
+	printf "rf.   Clear user preferences for displayed logs\\n\\n"
 	printf "u.    Check for updates\\n"
 	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
