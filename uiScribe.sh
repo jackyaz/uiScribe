@@ -159,15 +159,18 @@ Create_Symlinks(){
 	syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep -A 1 "destination" "$SCRIPT_DIR/tmplogs.txt" | grep "file(\"" | grep -v "#" | grep -v "messages" | sed -e 's/file("//;s/".*$//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
 	rm -f "$SCRIPT_DIR/tmplogs.txt" 2>/dev/null
 	
+	if [ "$1" = "force" ]; then
+		rm -f "$SCRIPT_DIR/.logs_user"
+	fi
+	
 	if [ ! -f "$SCRIPT_DIR/.logs_user" ]; then
 		touch "$SCRIPT_DIR/.logs_user"
 	fi
 	
 	while IFS='' read -r line || [ -n "$line" ]; do
 		if [ "$(grep -c "$line" "$SCRIPT_DIR/.logs_user")" -eq 0 ]; then
-			printf "%s\\n" "$line" >> "$SCRIPT_DIR/.logs_user"
+				printf "%s\\n" "$line" >> "$SCRIPT_DIR/.logs_user"
 		fi
-		html="$html""$line""\\r\\n"
 	done < "$SCRIPT_DIR/.logs"
 	
 	
@@ -277,7 +280,8 @@ ScriptHeader(){
 
 MainMenu(){
 	printf "1.    Check for updates\\n\\n"
-	printf "r.    Process Scribe logs for uiScribe now\\n\\n"
+	printf "r.    Process Scribe logs for %s\\n\\n" "$SCRIPT_NAME"
+	printf "rf.   Clear user preferences and process Scribe logs for %s\\n\\n" "$SCRIPT_NAME"
 	printf "u.    Check for updates\\n"
 	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
@@ -300,6 +304,13 @@ MainMenu(){
 			r)
 				if Check_Lock "menu"; then
 					Menu_ProcessUIScripts
+				fi
+				PressEnter
+				break
+			;;
+			rf)
+				if Check_Lock "menu"; then
+					Menu_ProcessUIScripts "force"
 				fi
 				PressEnter
 				break
@@ -403,7 +414,8 @@ Menu_Install(){
 }
 
 Menu_ProcessUIScripts(){
-	Create_Symlinks
+	Create_Symlinks "$1"
+	printf "\\n"
 	Clear_Lock
 }
 
