@@ -78,7 +78,7 @@ function showDST(){
 	var system_timezone_dut = "<% nvram_get("time_zone"); %>";
 	if(system_timezone_dut.search("DST") >= 0 && "<% nvram_get("time_zone_dst"); %>" == "1"){
 	document.getElementById('dstzone').style.display = "";
-	document.getElementById('dstzone').innerHTML = "<#195#>";
+	document.getElementById('dstzone').innerHTML = "* Daylight savings time is enabled in this time zone.";
 	}
 }
 function capitalise(string){
