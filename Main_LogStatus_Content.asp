@@ -3,8 +3,8 @@
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<meta HTTP-EQUIV="Expires" CONTENT="-1">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
 <link rel="shortcut icon" href="images/favicon.png">
 <link rel="icon" href="images/favicon.png">
 <title>System Log - enhanced by Scribe</title>
@@ -14,6 +14,7 @@
 p{
 font-weight: bolder;
 }
+
 .collapsible {
   color: white;
   padding: 0px;
@@ -205,10 +206,10 @@ function ResizeAll(action){
 }
 </script>
 </head>
-<body onload="initial();" onunLoad="return unload_body();">
+<body onload="initial();" onunload="return unload_body();">
 <div id="TopBanner"></div>
 <div id="Loading" class="popup_bg"></div>
-<iframe name="hidden_frame" id="hidden_frame" src="" width="0" height="0" frameborder="0"></iframe>
+<iframe name="hidden_frame" id="hidden_frame" src="about:blank" width="0" height="0" frameborder="0"></iframe>
 <form method="post" name="form" action="apply.cgi" target="hidden_frame">
 <input type="hidden" name="current_page" value="Main_LogStatus_Content.asp">
 <input type="hidden" name="next_page" value="Main_LogStatus_Content.asp">
@@ -250,22 +251,22 @@ function ResizeAll(action){
 </td>
 </tr>
 <tr>
-<th>Uptime</a></th>
+<th>Uptime</th>
 <td><span id="boot_days"></span> days <span id="boot_hours"></span> hours <span id="boot_minutes"></span> minute(s) <span id="boot_seconds"></span> seconds</td>
 </tr>
-<tr style="display:none;">
+<!--<tr style="display:none;">
 <td>
 <input type="hidden" name="current_page" value="Main_LogStatus_Content.asp">
 <input type="hidden" name="next_page" value="Main_LogStatus_Content.asp">
 <input type="hidden" name="action_mode" value="apply">
 <input type="hidden" name="action_script" value="restart_logger">
 <input type="hidden" name="action_wait" value="5">
-<input type="text" maxlength="15" class="input_15_table" name="log_ipaddr" value="<% nvram_get("log_ipaddr"); %>" onKeyPress="return validator.isIPAddr(this, event)" autocorrect="off" autocapitalize="off">
-<label style="padding-left:15px;">Port:</label><input type="text" class="input_6_table" maxlength="5" name="log_port" onKeyPress="return validator.isNumber(this,event);" onblur="validator.numberRange(this, 0, 65535);" value='<% nvram_get("log_port"); %>' autocorrect="off" autocapitalize="off">
+<input type="text" maxlength="15" class="input_15_table" name="log_ipaddr" value="<% nvram_get("log_ipaddr"); %>" onkeypress="return validator.isIPAddr(this, event)" autocorrect="off" autocapitalize="off">
+<label style="padding-left:15px;">Port:</label><input type="text" class="input_6_table" maxlength="5" name="log_port" onkeypress="return validator.isNumber(this,event);" onblur="validator.numberRange(this, 0, 65535);" value='<% nvram_get("log_port"); %>' autocorrect="off" autocapitalize="off">
 </td>
 </tr>
 <tr style="display:none;">
-<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(50,11);">Default message log level</a></th>
+<th><a class="hintstyle" href="javascript:void(0);" onclick="openHint(50,11);">Default message log level</a></th>
 <td>
 <select name="message_loglevel" class="input_option">
 <option value="0" <% nvram_match("message_loglevel", "0", "selected"); %>>emergency</option>
@@ -293,7 +294,7 @@ function ResizeAll(action){
 <option value="8" <% nvram_match("log_level", "8", "selected"); %>>all</option>
 </select>
 </td>
-</tr>
+</tr>-->
 </table>
 <div class="apply_gen" valign="top" style="display:none;"><input class="button_gen" onclick="applySettings();" type="button" value="Apply" /></div>
 </form>
@@ -302,14 +303,14 @@ function ResizeAll(action){
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_scroll">Scroll to bottom on refresh?</div>
 <table class="apply_gen">
 <tr class="apply_gen" valign="top">
-<td  align="right">
+<td align="right">
 <form name="formui_show">
-<input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onClick="ResizeAll('show')" type="button">
+<input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onclick="ResizeAll('show')" type="button">
 </form>
 </td>
 <td align="left">
 <form name="formui_hide">
-<input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen"  onClick="ResizeAll('hide')" type="button">
+<input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen" onclick="ResizeAll('hide')" type="button">
 </form>
 </td>
 </tr>

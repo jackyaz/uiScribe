@@ -15,13 +15,17 @@
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
-readonly SCRIPT_VERSION="v1.1.0"
+readonly SCRIPT_VERSION="v1.2.0"
 readonly SCRIPT_BRANCH="master"
 readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/""$SCRIPT_NAME""/""$SCRIPT_BRANCH"
-readonly SCRIPT_CONF="/jffs/configs/$SCRIPT_NAME.config"
-readonly SCRIPT_DIR="/jffs/scripts/$SCRIPT_NAME.d"
-readonly SCRIPT_WEB_DIR="$(readlink /www/ext)/$SCRIPT_NAME"
-readonly SHARED_DIR="/jffs/scripts/shared-jy"
+readonly OLD_SCRIPT_DIR="/jffs/scripts/$SCRIPT_NAME.d"
+readonly SCRIPT_DIR="/jffs/addons/$SCRIPT_NAME.d"
+readonly OLD_SCRIPT_CONF="/jffs/configs/$SCRIPT_NAME.config"
+readonly SCRIPT_CONF="$SCRIPT_DIR/config"
+readonly SCRIPT_PAGE_DIR="$(readlink /www/user)"
+readonly SCRIPT_WEB_DIR="$SCRIPT_PAGE_DIR/$SCRIPT_NAME"
+readonly OLD_SHARED_DIR="/jffs/scripts/shared-jy"
+readonly SHARED_DIR="/jffs/addons/shared-jy"
 readonly SHARED_REPO="https://raw.githubusercontent.com/jackyaz/shared-jy/master"
 [ -z "$(nvram get odmpid)" ] && ROUTER_MODEL=$(nvram get productid) || ROUTER_MODEL=$(nvram get odmpid)
 ### End of script variables ###
@@ -100,8 +104,9 @@ Update_Version(){
 			Print_Output "true" "MD5 hash of $SCRIPT_NAME does not match - downloading updated $serverver" "$PASS"
 		fi
 		
+		Update_File "Main_LogStatus_Content.asp"
+		
 		if [ "$doupdate" != "false" ]; then
-			Update_File "Main_LogStatus_Content.asp"
 			/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" -o "/jffs/scripts/$SCRIPT_NAME" && Print_Output "true" "$SCRIPT_NAME successfully updated"
 			chmod 0755 /jffs/scripts/"$SCRIPT_NAME"
 			Clear_Lock
@@ -158,8 +163,22 @@ Create_Dirs(){
 		mkdir -p "$SCRIPT_DIR"
 	fi
 	
+	if [ -d "$OLD_SCRIPT_DIR" ]; then
+		mv "$OLD_SCRIPT_DIR" "$(dirname "$SCRIPT_DIR")"
+		rm -rf "$OLD_SCRIPT_DIR"
+	fi
+	
+	if [ -f "$OLD_SCRIPT_CONF" ]; then
+		mv "$OLD_SCRIPT_CONF" "$SCRIPT_CONF"
+	fi
+	
 	if [ ! -d "$SHARED_DIR" ]; then
 		mkdir -p "$SHARED_DIR"
+	fi
+	
+	if [ -d "$OLD_SHARED_DIR" ]; then
+		mv "$OLD_SHARED_DIR" "$(dirname "$SHARED_DIR")"
+		rm -rf "$OLD_SHARED_DIR"
 	fi
 	
 	if [ ! -d "$SCRIPT_WEB_DIR" ]; then
