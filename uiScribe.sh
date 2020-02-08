@@ -130,8 +130,8 @@ Update_File(){
 		tmpfile="/tmp/$1"
 		Download_File "$SCRIPT_REPO/$1" "$tmpfile"
 		if ! diff -q "$tmpfile" "$SCRIPT_DIR/$1" >/dev/null 2>&1; then
+			Download_File "$SCRIPT_REPO/$1" "$SCRIPT_DIR/$1"
 			Print_Output "true" "New version of $1 downloaded" "$PASS"
-			rm -f "$SCRIPT_DIR/$1"
 			Mount_WebUI
 		fi
 		rm -f "$tmpfile"
@@ -294,10 +294,6 @@ Download_File(){
 
 Mount_WebUI(){
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
-	
-	if [ ! -f "$SCRIPT_DIR/Main_LogStatus_Content.asp" ]; then
-		Download_File "$SCRIPT_REPO/Main_LogStatus_Content.asp" "$SCRIPT_DIR/Main_LogStatus_Content.asp"
-	fi
 	
 	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" "/www/Main_LogStatus_Content.asp"
 }
