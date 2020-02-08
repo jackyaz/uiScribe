@@ -15,7 +15,7 @@
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
-readonly SCRIPT_VERSION="v1.2.0"
+readonly SCRIPT_VERSION="v1.2.1"
 readonly SCRIPT_BRANCH="master"
 readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/""$SCRIPT_NAME""/""$SCRIPT_BRANCH"
 readonly OLD_SCRIPT_DIR="/jffs/scripts/$SCRIPT_NAME.d"
@@ -46,12 +46,6 @@ Print_Output(){
 		printf "\\e[1m$3%s: $2\\e[0m\\n\\n" "$SCRIPT_NAME"
 	fi
 }
-
-### Code for this function courtesy of https://github.com/decoderman - credit to @thelonelycoder ###
-Firmware_Version_Check(){
-	echo "$1" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'
-}
-############################################################################
 
 ### Code for these functions inspired by https://github.com/Adamm00 - credit to @Adamm ###
 Check_Lock(){
@@ -136,8 +130,8 @@ Update_File(){
 		tmpfile="/tmp/$1"
 		Download_File "$SCRIPT_REPO/$1" "$tmpfile"
 		if ! diff -q "$tmpfile" "$SCRIPT_DIR/$1" >/dev/null 2>&1; then
+			Download_File "$SCRIPT_REPO/$1" "$SCRIPT_DIR/$1"
 			Print_Output "true" "New version of $1 downloaded" "$PASS"
-			rm -f "$SCRIPT_DIR/$1"
 			Mount_WebUI
 		fi
 		rm -f "$tmpfile"
@@ -203,7 +197,6 @@ Create_Symlinks(){
 				printf "%s\\n" "$line" >> "$SCRIPT_DIR/.logs_user"
 		fi
 	done < "$SCRIPT_DIR/.logs"
-	
 	
 	rm -f "$SCRIPT_WEB_DIR/"* 2>/dev/null
 	ln -s "$SCRIPT_DIR/.logs_user"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
@@ -302,10 +295,6 @@ Download_File(){
 Mount_WebUI(){
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
 	
-	if [ ! -f "$SCRIPT_DIR/Main_LogStatus_Content.asp" ]; then
-		Download_File "$SCRIPT_REPO/Main_LogStatus_Content.asp" "$SCRIPT_DIR/Main_LogStatus_Content.asp"
-	fi
-	
 	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" "/www/Main_LogStatus_Content.asp"
 }
 
@@ -359,8 +348,9 @@ ScriptHeader(){
 }
 
 MainMenu(){
+	Create_Dirs
+	Create_Symlinks
 	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
-	printf "r.    Process Scribe logs for %s\\n" "$SCRIPT_NAME"
 	printf "rf.   Clear user preferences for displayed logs\\n\\n"
 	printf "u.    Check for updates\\n"
 	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
@@ -377,13 +367,6 @@ MainMenu(){
 			1)
 				if Check_Lock "menu"; then
 					Menu_CustomiseLogList
-				fi
-				PressEnter
-				break
-			;;
-			r)
-				if Check_Lock "menu"; then
-					Menu_ProcessUIScripts
 				fi
 				PressEnter
 				break
@@ -486,6 +469,7 @@ Menu_Install(){
 	Shortcut_script create
 	Create_Dirs
 	Create_Symlinks
+	Update_File "Main_LogStatus_Content.asp"
 	Mount_WebUI
 	
 	Print_Output "true" "uiScribe installed successfully!" "$PASS"

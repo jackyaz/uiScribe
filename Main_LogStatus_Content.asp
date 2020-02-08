@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="index_style.css">
 <link rel="stylesheet" type="text/css" href="form_style.css">
 <style>
-p{
+p {
 font-weight: bolder;
 }
 
@@ -57,6 +57,7 @@ function showclock(){
 	if(navigator.appName.indexOf("Microsoft") >= 0)
 	document.getElementById("log_messages").style.width = "99%";
 }
+
 function showbootTime(){
 	Days = Math.floor(boottime / (60*60*24));
 	Hours = Math.floor((boottime / 3600) % 24);
@@ -69,12 +70,14 @@ function showbootTime(){
 	boottime += 1;
 	setTimeout("showbootTime()", 1000);
 }
+
 function clearLog(){
 	document.form1.target = "hidden_frame";
 	document.form1.action_mode.value = " Clear ";
 	document.form1.submit();
 	location.href = location.href;
 }
+
 function showDST(){
 	var system_timezone_dut = "<% nvram_get("time_zone"); %>";
 	if(system_timezone_dut.search("DST") >= 0 && "<% nvram_get("time_zone_dst"); %>" == "1"){
@@ -82,9 +85,11 @@ function showDST(){
 	document.getElementById('dstzone').innerHTML = "* Daylight savings time is enabled in this time zone.";
 	}
 }
+
 function capitalise(string){
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
 function initial(){
 	show_menu();
 	showclock();
@@ -92,9 +97,11 @@ function initial(){
 	showDST();
 	get_conf_file();
 }
+
 function applySettings(){
 	document.config_form.submit();
 }
+
 var logfilelist="";
 function get_all_logfiles(){
 	get_logfile("messages");
@@ -103,6 +110,7 @@ function get_all_logfiles(){
 		setTimeout("get_all_logfiles();", 5000);
 	}
 }
+
 function get_logfile(filename){
 	$.ajax({
 		url: '/ext/uiScribe/'+filename+'.htm',
@@ -128,6 +136,7 @@ function get_logfile(filename){
 		}
 	});
 }
+
 function get_conf_file(){
 	$.ajax({
 		url: '/ext/uiScribe/logs.htm',
@@ -155,16 +164,18 @@ function get_conf_file(){
 		}
 	});
 }
+
 function BuildLogTable(name){
-	var loghtml='<div style="line-height:10px;">&nbsp;</div>'
-	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name.substring(0,name.indexOf("."))+'">'
-	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>'
-	loghtml+='<tr><td style="padding: 0px;">'
-	loghtml+='<div class="collapsiblecontent">'
-	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>'
-	loghtml+='</div></td></tr></table>'
+	var loghtml='<div style="line-height:10px;">&nbsp;</div>';
+	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name.substring(0,name.indexOf("."))+'">';
+	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
+	loghtml+='<tr><td style="padding: 0px;">';
+	loghtml+='<div class="collapsiblecontent">';
+	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>';
+	loghtml+='</div></td></tr></table>';
 	return loghtml;
 }
+
 function AddEventHandlers(){
 	var coll = document.getElementsByClassName("collapsible");
 	var i;
@@ -184,12 +195,15 @@ function AddEventHandlers(){
 	$("#auto_refresh")[0].addEventListener("click", function(){ToggleRefresh();});
 	$("#auto_refresh")[0].addEventListener("click", function(){ToggleScroll();});
 }
+
 function ToggleRefresh(){
 	$("#auto_scroll").prop('disabled', function(i, v) { if (v) {get_all_logfiles();} });
 }
+
 function ToggleScroll(){
 	$("#auto_scroll").prop('disabled', function(i, v) { return !v; });
 }
+
 function ResizeAll(action){
 	var coll = document.getElementsByClassName("collapsible");
 	var i;
@@ -197,10 +211,10 @@ function ResizeAll(action){
 	for (i = 0; i < coll.length; i++) {
 		if(action=="show"){
 			coll[i].classList.add("active");
-			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.scrollHeight+"px"
+			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.scrollHeight+"px";
 		} else {
 			coll[i].classList.remove("active");
-			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=null
+			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=null;
 		}
 	}
 }
