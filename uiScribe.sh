@@ -469,6 +469,7 @@ Menu_Install(){
 	Shortcut_script create
 	Create_Dirs
 	Create_Symlinks
+	Update_File "Main_LogStatus_Content.asp"
 	Mount_WebUI
 	
 	Print_Output "true" "uiScribe installed successfully!" "$PASS"
