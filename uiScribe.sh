@@ -47,12 +47,6 @@ Print_Output(){
 	fi
 }
 
-### Code for this function courtesy of https://github.com/decoderman - credit to @thelonelycoder ###
-Firmware_Version_Check(){
-	echo "$1" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'
-}
-############################################################################
-
 ### Code for these functions inspired by https://github.com/Adamm00 - credit to @Adamm ###
 Check_Lock(){
 	if [ -f "/tmp/$SCRIPT_NAME.lock" ]; then
@@ -203,7 +197,6 @@ Create_Symlinks(){
 				printf "%s\\n" "$line" >> "$SCRIPT_DIR/.logs_user"
 		fi
 	done < "$SCRIPT_DIR/.logs"
-	
 	
 	rm -f "$SCRIPT_WEB_DIR/"* 2>/dev/null
 	ln -s "$SCRIPT_DIR/.logs_user"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
