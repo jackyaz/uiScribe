@@ -352,8 +352,9 @@ ScriptHeader(){
 }
 
 MainMenu(){
+	Create_Dirs
+	Create_Symlinks
 	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
-	printf "r.    Process Scribe logs for %s\\n" "$SCRIPT_NAME"
 	printf "rf.   Clear user preferences for displayed logs\\n\\n"
 	printf "u.    Check for updates\\n"
 	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
@@ -370,13 +371,6 @@ MainMenu(){
 			1)
 				if Check_Lock "menu"; then
 					Menu_CustomiseLogList
-				fi
-				PressEnter
-				break
-			;;
-			r)
-				if Check_Lock "menu"; then
-					Menu_ProcessUIScripts
 				fi
 				PressEnter
 				break
