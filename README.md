@@ -18,7 +18,7 @@ Love the script and want to support future development? Any and all donations gr
 [**PayPal donation**](https://paypal.me/jackyaz21)
 
 ## Supported firmware versions
-You must be running firmware Merlin 384.15/384.13_4 or Fork 43E5 (or later) [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/)
+You must be running firmware Merlin 384.15/384.13_4 [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/)
 
 ## Installation
 Using your preferred SSH client/terminal, copy and paste the following command, then press Enter:
