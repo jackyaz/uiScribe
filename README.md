@@ -2,8 +2,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c705507fb1d845d9937e98f0b6e15997)](https://www.codacy.com/app/jackyaz/uiScribe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jackyaz/uiScribe&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.com/jackyaz/uiScribe.svg?branch=master)](https://travis-ci.com/jackyaz/uiScribe)
 
-## v1.2.1
-### Updated on 2020-02-08
+## v1.3.0
+### Updated on 2020-04-25
 ## About
 Customise the System Log page to show log files created by Scribe (syslog-ng). Requires [**Scribe**](https://github.com/cynicastic/scribe)
 Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforums.com/threads/scribe-syslog-ng-and-logrotate-installer.55853/)
@@ -17,9 +17,8 @@ Example log page (sections added/removed dynamically depending on which filters 
 Love the script and want to support future development? Any and all donations gratefully received!
 [**PayPal donation**](https://paypal.me/jackyaz21)
 
-## Supported Models
-All models supported by [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/about). Models confirmed to work are below:
-*   RT-AC86U
+## Supported firmware versions
+You must be running firmware Merlin 384.15/384.13_4 (or later) [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/)
 
 ## Installation
 Using your preferred SSH client/terminal, copy and paste the following command, then press Enter:

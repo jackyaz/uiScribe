@@ -12,7 +12,7 @@
 <link rel="stylesheet" type="text/css" href="form_style.css">
 <style>
 p {
-font-weight: bolder;
+  font-weight: bolder;
 }
 
 .collapsible {
@@ -32,12 +32,22 @@ font-weight: bolder;
   border: none;
   transition: max-height 0.2s ease-out;
 }
+
+.btndisabled {
+  border: 1px solid #999999 !important;
+  background-color: #cccccc !important;
+  color: #000000 !important;
+  background: #cccccc !important;
+  text-shadow: none !important;
+  cursor: default !important;
+}
+
 </style>
 <script language="JavaScript" type="text/javascript" src="/state.js"></script>
 <script language="JavaScript" type="text/javascript" src="/general.js"></script>
 <script language="JavaScript" type="text/javascript" src="/popup.js"></script>
 <script language="JavaScript" type="text/javascript" src="/help.js"></script>
-<script type="text/javascript" language="JavaScript" src="/validator.js"></script>
+<script language="JavaScript" type="text/javascript" src="/validator.js"></script>
 <script language="JavaScript" type="text/javascript" src="/js/jquery.js"></script>
 <script>
 function showclock(){
@@ -165,33 +175,61 @@ function get_conf_file(){
 	});
 }
 
+function DownloadAllLogFile(){
+	$(".btndownload").each(function(index){$(this).trigger("click");});
+}
+
+function DownloadLogFile(btnlog){
+	$(btnlog).prop('disabled', true);
+	$(btnlog).addClass("btndisabled");
+	var filepath = "";
+	if(btnlog.name == "btnmessages"){
+		filepath='/ext/uiScribe/messages.htm'
+	}
+	else {
+		filepath='/ext/uiScribe/'+btnlog.name.replace("btn","")+'.log.htm'
+	}
+	fetch(filepath).then(resp => resp.blob()).then(blob => {
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.style.display = 'none';
+		a.href = url;
+		a.download = btnlog.name.replace("btn","")+'.log';
+		document.body.appendChild(a);
+		a.click();
+		window.URL.revokeObjectURL(url);
+		$(btnlog).prop('disabled', false);
+		$(btnlog).removeClass("btndisabled");
+	})
+	.catch(() => {
+		console.log('File download failed!');
+		$(btnlog).prop('disabled', false);
+		$(btnlog).removeClass("btndisabled");
+	});
+}
+
 function BuildLogTable(name){
 	var loghtml='<div style="line-height:10px;">&nbsp;</div>';
 	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name.substring(0,name.indexOf("."))+'">';
-	loghtml+='<thead class="collapsible" ><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
-	loghtml+='<tr><td style="padding: 0px;">';
+	loghtml+='<thead class="collapsible default-collapsed" ><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
 	loghtml+='<div class="collapsiblecontent">';
+	loghtml+='<tr><td style="padding: 0px;">';
 	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>';
-	loghtml+='</div></td></tr></table>';
+	loghtml+='</td></tr>';
+	loghtml+='<tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">';
+	//loghtml+='<a href="/ext/uiScribe/'+name.substring(0,name.indexOf("."))+'.log.htm" download="'+name.substring(0,name.indexOf("."))+'.log"><input type="button" value="Download log file" class="button_gen" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'"></a>';
+	loghtml+='<input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'">';
+	loghtml+='</td></tr></div>';
+	loghtml+='</table>';
 	return loghtml;
 }
 
 function AddEventHandlers(){
-	var coll = document.getElementsByClassName("collapsible");
-	var i;
+	$("thead.collapsible").click(function(){
+		$(this).siblings().toggle("slow");
+	})
 	
-	for (i = 0; i < coll.length; i++) {
-		coll[i].addEventListener("click", function() {
-			this.classList.toggle("active");
-			var content = this.nextElementSibling.firstElementChild.firstElementChild.firstElementChild;
-			if (content.style.maxHeight){
-				content.style.maxHeight = null;
-			} else {
-				content.style.maxHeight = content.scrollHeight + "px";
-			}
-		});
-	}
-	
+	$(".default-collapsed").trigger("click");
 	$("#auto_refresh")[0].addEventListener("click", function(){ToggleRefresh();});
 	$("#auto_refresh")[0].addEventListener("click", function(){ToggleScroll();});
 }
@@ -205,17 +243,11 @@ function ToggleScroll(){
 }
 
 function ResizeAll(action){
-	var coll = document.getElementsByClassName("collapsible");
-	var i;
-	
-	for (i = 0; i < coll.length; i++) {
-		if(action=="show"){
-			coll[i].classList.add("active");
-			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.scrollHeight+"px";
-		} else {
-			coll[i].classList.remove("active");
-			coll[i].nextElementSibling.firstElementChild.firstElementChild.firstElementChild.style.maxHeight=null;
-		}
+	if(action=="show"){
+		$("thead.collapsible").siblings().toggle(true);
+	}
+	else {
+		$("thead.collapsible").siblings().toggle(false);
 	}
 }
 </script>
@@ -316,33 +348,34 @@ function ResizeAll(action){
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh">Auto refresh</div>
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_scroll">Scroll to bottom on refresh?</div>
 <table class="apply_gen">
-<tr class="apply_gen" valign="top">
-<td align="right">
-<form name="formui_show">
+<form name="formui_buttons">
+<tr class="apply_gen" valign="top" align="center">
+<td>
 <input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onclick="ResizeAll('show')" type="button">
-</form>
-</td>
-<td align="left">
-<form name="formui_hide">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen" onclick="ResizeAll('hide')" type="button">
-</form>
 </td>
 </tr>
+<tr class="apply_gen" valign="top" align="center">
+<td>
+<input style="text-align:center;" id="btn_DownloadAll" value="Download All" class="button_gen" onclick="DownloadAllLogFile()" type="button">
+</td>
+</tr>
+</form>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
-<thead class="collapsible" >
-<tr>
-<td colspan="2">System Messages (click to show/hide)</td>
-</tr>
+<thead class="collapsible default-collapsed">
+<tr><td colspan="2">System Messages (click to show/hide)</td></tr>
 </thead>
-<tr>
-<td style="padding: 0px;">
 <div class="collapsiblecontent">
+<tr><td style="padding: 0px;">
 <textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_messages" class="textarea_log_table" style="font-family:'Courier New', Courier, mono; font-size:11px;"><% nvram_dump("syslog.log",""); %></textarea>
+</td></tr>
+<tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">
+<input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btnmessages" id="btnmessages">
+</td></tr>
 </div>
-</td>
-</tr>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
 </td>
