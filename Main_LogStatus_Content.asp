@@ -216,7 +216,6 @@ function BuildLogTable(name){
 	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>';
 	loghtml+='</td></tr>';
 	loghtml+='<tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">';
-	//loghtml+='<a href="/ext/uiScribe/'+name.substring(0,name.indexOf("."))+'.log.htm" download="'+name.substring(0,name.indexOf("."))+'.log"><input type="button" value="Download log file" class="button_gen" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'"></a>';
 	loghtml+='<input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'">';
 	loghtml+='</td></tr></div>';
 	loghtml+='</table>';
