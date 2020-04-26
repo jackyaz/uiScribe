@@ -63,7 +63,7 @@ function showclock(){
 	timezone;*/ // Viz remove GMT timezone 2011.08
 	JS_timeObj.getFullYear();
 	document.getElementById("system_time").value = JS_timeObj2;
-	setTimeout("showclock()", 1000);
+	setTimeout(showclock, 1000);
 	if(navigator.appName.indexOf("Microsoft") >= 0)
 	document.getElementById("log_messages").style.width = "99%";
 }
@@ -78,7 +78,7 @@ function showbootTime(){
 	document.getElementById("boot_minutes").innerHTML = Minutes;
 	document.getElementById("boot_seconds").innerHTML = Seconds;
 	boottime += 1;
-	setTimeout("showbootTime()", 1000);
+	setTimeout(showbootTime, 1000);
 }
 
 function clearLog(){
@@ -114,10 +114,10 @@ function applySettings(){
 
 var logfilelist="";
 function get_all_logfiles(){
-	get_logfile("messages");
+	setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 2000));
 	eval(logfilelist);
 	if(document.getElementById("auto_refresh").checked){
-		setTimeout("get_all_logfiles();", 5000);
+		setTimeout(get_all_logfiles, 5000);
 	}
 }
 
@@ -126,7 +126,7 @@ function get_logfile(filename){
 		url: '/ext/uiScribe/'+filename+'.htm',
 		dataType: 'text',
 		error: function(xhr){
-			setTimeout("get_logfile("+filename+");", 1000);
+			setTimeout(function(){get_logfile(filename);}, 2000);
 		},
 		success: function(data){
 			if(document.getElementById("auto_refresh").checked){
@@ -141,7 +141,6 @@ function get_logfile(filename){
 						$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
 					}
 				}
-				
 			}
 		}
 	});
@@ -152,7 +151,7 @@ function get_conf_file(){
 		url: '/ext/uiScribe/logs.htm',
 		dataType: 'text',
 		error: function(xhr){
-			setTimeout("get_conf_file();", 1000);
+			setTimeout(get_conf_file, 1000);
 		},
 		success: function(data){
 			var logs=data.split("\n");
@@ -167,7 +166,7 @@ function get_conf_file(){
 				}
 				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
-				logfilelist+='get_logfile("'+filename+'");';
+				logfilelist+='setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 2000));';
 			}
 			AddEventHandlers();
 			get_all_logfiles();
