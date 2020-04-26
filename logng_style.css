@@ -41,7 +41,7 @@
 }
 
 /* Hide raw message, or everything else */
-/*[id^="syslogTable"] th:first-of-type,*/
+[id^="syslogTable"] th:first-of-type,
 [id^="syslogTable"] tr.lvl_unknown td:first-of-type,
 [id^="syslogTable"] tr.lvl_emerg td:first-of-type,
 [id^="syslogTable"] tr.lvl_alert td:first-of-type,
@@ -51,7 +51,7 @@
 [id^="syslogTable"] tr.lvl_notice td:first-of-type,
 [id^="syslogTable"] tr.lvl_info td:first-of-type,
 [id^="syslogTable"] tr.lvl_debug td:first-of-type,
-[id^="syslogTable"] tr:not(.lvl_unknown):not(.lvl_emerg):not(.lvl_alert):not(.lvl_crit):not(.lvl_err):not(.lvl_warning):not(.lvl_notice):not(.lvl_info):not(.lvl_debug) {
+[id^="syslogTable"] tr:not(.lvl_unknown):not(.lvl_emerg):not(.lvl_alert):not(.lvl_crit):not(.lvl_err):not(.lvl_warning):not(.lvl_notice):not(.lvl_info):not(.lvl_debug) td:not(:first-of-type){
 	display: none;
 }
 
