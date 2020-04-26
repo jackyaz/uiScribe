@@ -15,7 +15,7 @@
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
-readonly SCRIPT_VERSION="v1.3.0"
+readonly SCRIPT_VERSION="v1.3.1"
 readonly SCRIPT_BRANCH="develop"
 readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/""$SCRIPT_NAME""/""$SCRIPT_BRANCH"
 readonly SCRIPT_DIR="/jffs/addons/$SCRIPT_NAME.d"
@@ -181,9 +181,9 @@ Create_Symlinks(){
 		fi
 	done < "$SCRIPT_DIR/.logs"
 	
-	rm -f "$SCRIPT_WEB_DIR/"* 2>/dev/null
-	ln -s "$SCRIPT_DIR/.logs_user"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
-	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
+	rm -f "$SCRIPT_WEB_DIR/"*.htm 2>/dev/null
+	ln -s "$SCRIPT_DIR/.logs_user" "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
+	ln -s "/opt/var/log/messages" "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 	while IFS='' read -r line || [ -n "$line" ]; do
 		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
