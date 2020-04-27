@@ -22,7 +22,7 @@ var LoggyParser = function() {};
  *    message
  */
 LoggyParser.prototype.parse = function(rawMessage, callback) {
-	if(typeof rawMessage != 'string') {
+	if(typeof rawMessage !== "string") {
 		return rawMessage;
 	}
 
@@ -35,11 +35,11 @@ LoggyParser.prototype.parse = function(rawMessage, callback) {
 	var rightMessage = rawMessage;
 
 	// Date
-	segment = rightMessage.match(/^(\d{4}\s+)?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})\s+/);
+	var segment = rightMessage.match(/^(\d{4}\s+)?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})\s+/);
 	parsedMessage.time = segment[0];
 	rightMessage = rightMessage.substring(segment[0].length);
 
-	var remainingMessage=rightMessage.split(' ');
+	var remainingMessage=rightMessage.split(" ");
 	
 	parsedMessage.host = remainingMessage[0];
 	remainingMessage.shift();
@@ -50,8 +50,8 @@ LoggyParser.prototype.parse = function(rawMessage, callback) {
 	
 	
 	// Whatever is left
-	parsedMessage.message = remainingMessage.join(' ');
-	console.log(parsedMessage);
+	parsedMessage.message = remainingMessage.join(" ");
+	
 	if(callback) {
 		callback(parsedMessage);
 	} else {
@@ -65,4 +65,4 @@ onmessage = function(e) {
 		msg.idx = e.data.idx;
 		postMessage(msg);
 	});
-}
+};
