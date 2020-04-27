@@ -63,7 +63,7 @@ function showclock(){
 	timezone;*/ // Viz remove GMT timezone 2011.08
 	JS_timeObj.getFullYear();
 	document.getElementById("system_time").value = JS_timeObj2;
-	setTimeout("showclock()", 1000);
+	setTimeout(showclock, 1000);
 	if(navigator.appName.indexOf("Microsoft") >= 0)
 	document.getElementById("log_messages").style.width = "99%";
 }
@@ -78,7 +78,7 @@ function showbootTime(){
 	document.getElementById("boot_minutes").innerHTML = Minutes;
 	document.getElementById("boot_seconds").innerHTML = Seconds;
 	boottime += 1;
-	setTimeout("showbootTime()", 1000);
+	setTimeout(showbootTime, 1000);
 }
 
 function clearLog(){
@@ -114,10 +114,10 @@ function applySettings(){
 
 var logfilelist="";
 function get_all_logfiles(){
-	get_logfile("messages");
+	setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 2000));
 	eval(logfilelist);
 	if(document.getElementById("auto_refresh").checked){
-		setTimeout("get_all_logfiles();", 5000);
+		setTimeout(get_all_logfiles, 5000);
 	}
 }
 
@@ -126,7 +126,7 @@ function get_logfile(filename){
 		url: '/ext/uiScribe/'+filename+'.htm',
 		dataType: 'text',
 		error: function(xhr){
-			setTimeout("get_logfile("+filename+");", 1000);
+			setTimeout(function(){get_logfile(filename);}, 2000);
 		},
 		success: function(data){
 			if(document.getElementById("auto_refresh").checked){
@@ -141,7 +141,6 @@ function get_logfile(filename){
 						$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
 					}
 				}
-				
 			}
 		}
 	});
@@ -152,7 +151,7 @@ function get_conf_file(){
 		url: '/ext/uiScribe/logs.htm',
 		dataType: 'text',
 		error: function(xhr){
-			setTimeout("get_conf_file();", 1000);
+			setTimeout(get_conf_file, 1000);
 		},
 		success: function(data){
 			var logs=data.split("\n");
@@ -167,7 +166,7 @@ function get_conf_file(){
 				}
 				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
-				logfilelist+='get_logfile("'+filename+'");';
+				logfilelist+='setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 2000));';
 			}
 			AddEventHandlers();
 			get_all_logfiles();
@@ -217,7 +216,6 @@ function BuildLogTable(name){
 	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>';
 	loghtml+='</td></tr>';
 	loghtml+='<tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">';
-	//loghtml+='<a href="/ext/uiScribe/'+name.substring(0,name.indexOf("."))+'.log.htm" download="'+name.substring(0,name.indexOf("."))+'.log"><input type="button" value="Download log file" class="button_gen" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'"></a>';
 	loghtml+='<input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'">';
 	loghtml+='</td></tr></div>';
 	loghtml+='</table>';

@@ -1,0 +1,150 @@
+[id^="syslogContainer"] {
+	width: 68em;
+	height: 45em;
+	resize: both;
+	overflow: auto;
+	font-family: 'Courier New', Courier, mono;
+	font-size: 11px;
+}
+[id^="syslogTable"] {
+	table-layout: fixed;
+	min-height: 300px;
+	border-collapse: collapse;
+}
+[id^="syslogTable"] th {
+	margin: 0px;
+	position: sticky;
+	top: 0;
+	background: #2F3A3E;
+	text-align: left;
+	padding-left: 5px;
+}
+[id^="syslogTable"] td {
+	padding: 0px 2px 0px 2px;
+	margin: 0px;
+	border: 1px solid gray;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+[id^="syslogTable"] col:first-of-type {
+	border-left: 2px solid #2F3A3E;
+}
+[id^="syslogTable"] td:last-of-type, [id^="syslogTable"] th:last-of-type, [id^="syslogTable"] td:first-of-type {
+	border-right: 2px solid #2F3A3E;
+}
+[id^="syslogTable"] tr:last-of-type {
+	border-bottom: 2px solid #2F3A3E;
+}
+
+/* Hide raw message, or everything else */
+[id^="syslogTable"] th:first-of-type,
+[id^="syslogTable"] tr.lvl_unknown td:first-of-type,
+[id^="syslogTable"] tr.lvl_emerg td:first-of-type,
+[id^="syslogTable"] tr.lvl_alert td:first-of-type,
+[id^="syslogTable"] tr.lvl_crit td:first-of-type,
+[id^="syslogTable"] tr.lvl_err td:first-of-type,
+[id^="syslogTable"] tr.lvl_warning td:first-of-type,
+[id^="syslogTable"] tr.lvl_notice td:first-of-type,
+[id^="syslogTable"] tr.lvl_info td:first-of-type,
+[id^="syslogTable"] tr.lvl_debug td:first-of-type,
+[id^="syslogTable"] tr:not(.lvl_unknown):not(.lvl_emerg):not(.lvl_alert):not(.lvl_crit):not(.lvl_err):not(.lvl_warning):not(.lvl_notice):not(.lvl_info):not(.lvl_debug) td:not(:first-of-type){
+	display: none;
+}
+
+/* Fix the width of everything but the message  */
+[id^="syslogTable"] th, [id^="syslogTable"] td {
+	width: 0px;
+}
+[id^="syslogTable"] td:first-of-type,
+[id^="syslogTable"] th:last-of-type,
+[id^="syslogTable"] td:last-of-type {
+	width: auto;
+	overflow: hidden;
+}
+
+/* Row priority colours */
+[id^="syslogTable"] tr.lvl_emerg {
+	background-color: #000000;
+}
+[id^="syslogTable"] tr.lvl_alert {
+	background-color: #DB78C6;
+}
+[id^="syslogTable"] tr.lvl_crit {
+	background-color: #CF1819;
+}
+[id^="syslogTable"] tr.lvl_err {
+	background-color: #C4731F;
+}
+[id^="syslogTable"] tr.lvl_warning {
+	background-color: #B8BD25;
+}
+[id^="syslogTable"] tr.lvl_notice {
+	background-color: #2496B3;
+}
+[id^="syslogTable"] tr.lvl_info {
+	background-color: #6F7374;
+}
+[id^="syslogTable"] tr.lvl_debug {
+	background-color: #449E74;
+}
+
+/* Priority filtering */
+[id^="syslogTable"].filter_emerg tr.lvl_alert,
+[id^="syslogTable"].filter_emerg tr.lvl_crit,
+[id^="syslogTable"].filter_emerg tr.lvl_err,
+[id^="syslogTable"].filter_emerg tr.lvl_warning,
+[id^="syslogTable"].filter_emerg tr.lvl_notice,
+[id^="syslogTable"].filter_emerg tr.lvl_info,
+[id^="syslogTable"].filter_emerg tr.lvl_debug {
+	display: none;
+}
+
+[id^="syslogTable"].filter_alert tr.lvl_crit,
+[id^="syslogTable"].filter_alert tr.lvl_err,
+[id^="syslogTable"].filter_alert tr.lvl_warning,
+[id^="syslogTable"].filter_alert tr.lvl_notice,
+[id^="syslogTable"].filter_alert tr.lvl_info,
+[id^="syslogTable"].filter_alert tr.lvl_debug {
+	display: none;
+}
+
+[id^="syslogTable"].filter_crit tr.lvl_err,
+[id^="syslogTable"].filter_crit tr.lvl_warning,
+[id^="syslogTable"].filter_crit tr.lvl_notice,
+[id^="syslogTable"].filter_crit tr.lvl_info,
+[id^="syslogTable"].filter_crit tr.lvl_debug {
+	display: none;
+}
+
+[id^="syslogTable"].filter_err tr.lvl_warning,
+[id^="syslogTable"].filter_err tr.lvl_notice,
+[id^="syslogTable"].filter_err tr.lvl_info,
+[id^="syslogTable"].filter_err tr.lvl_debug {
+	display: none;
+}
+
+[id^="syslogTable"].filter_warning tr.lvl_notice,
+[id^="syslogTable"].filter_warning tr.lvl_info,
+[id^="syslogTable"].filter_warning tr.lvl_debug {
+	display: none;
+}
+
+[id^="syslogTable"].filter_notice tr.lvl_info,
+[id^="syslogTable"].filter_notice tr.lvl_debug {
+	display: none;
+}
+
+[id^="syslogTable"].filter_info tr.lvl_debug {
+	display: none;
+}
+
+/* Severity selector */
+#severityContainer {
+	display: inline-block;
+	padding-left: 10px;
+}
+
+label[for="severity"] {
+    padding-left: 5px;
+}

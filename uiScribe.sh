@@ -15,7 +15,7 @@
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
-readonly SCRIPT_VERSION="v1.3.0"
+readonly SCRIPT_VERSION="v1.3.1"
 readonly SCRIPT_BRANCH="master"
 readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/""$SCRIPT_NAME""/""$SCRIPT_BRANCH"
 readonly SCRIPT_DIR="/jffs/addons/$SCRIPT_NAME.d"
@@ -101,6 +101,7 @@ Update_Version(){
 			/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" -o "/jffs/scripts/$SCRIPT_NAME" && Print_Output "true" "$SCRIPT_NAME successfully updated"
 			chmod 0755 /jffs/scripts/"$SCRIPT_NAME"
 			Clear_Lock
+			exec "$0"
 			exit 0
 		else
 			Print_Output "true" "No new version - latest is $localver" "$WARN"
@@ -116,6 +117,7 @@ Update_Version(){
 			/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" -o "/jffs/scripts/$SCRIPT_NAME" && Print_Output "true" "$SCRIPT_NAME successfully updated"
 			chmod 0755 /jffs/scripts/"$SCRIPT_NAME"
 			Clear_Lock
+			exec "$0"
 			exit 0
 		;;
 	esac
@@ -181,9 +183,9 @@ Create_Symlinks(){
 		fi
 	done < "$SCRIPT_DIR/.logs"
 	
-	rm -f "$SCRIPT_WEB_DIR/"* 2>/dev/null
-	ln -s "$SCRIPT_DIR/.logs_user"  "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
-	ln -s "/opt/var/log/messages"  "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
+	rm -f "$SCRIPT_WEB_DIR/"*.htm 2>/dev/null
+	ln -s "$SCRIPT_DIR/.logs_user" "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
+	ln -s "/opt/var/log/messages" "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 	while IFS='' read -r line || [ -n "$line" ]; do
 		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
@@ -528,6 +530,20 @@ case "$1" in
 	forceupdate)
 		Check_Lock
 		Menu_ForceUpdate
+		exit 0
+	;;
+	develop)
+		Check_Lock
+		sed -i 's/^readonly SCRIPT_BRANCH.*$/readonly SCRIPT_BRANCH="develop"/' "/jffs/scripts/$SCRIPT_NAME"
+		Clear_Lock
+		exec "$0" "update"
+		exit 0
+	;;
+	stable)
+		Check_Lock
+		sed -i 's/^readonly SCRIPT_BRANCH.*$/readonly SCRIPT_BRANCH="master"/' "/jffs/scripts/$SCRIPT_NAME"
+		Clear_Lock
+		exec "$0" "update"
 		exit 0
 	;;
 	uninstall)
