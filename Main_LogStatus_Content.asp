@@ -15,7 +15,7 @@ p {
   font-weight: bolder;
 }
 
-.collapsible {
+thead.collapsible-jquery {
   color: white;
   padding: 0px;
   width: 100%;
@@ -23,14 +23,6 @@ p {
   text-align: left;
   outline: none;
   cursor: pointer;
-}
-
-.collapsiblecontent {
-  padding: 0px;
-  max-height: 0;
-  overflow: hidden;
-  border: none;
-  transition: max-height 0.2s ease-out;
 }
 
 .btndisabled {
@@ -41,7 +33,6 @@ p {
   text-shadow: none !important;
   cursor: default !important;
 }
-
 </style>
 <script language="JavaScript" type="text/javascript" src="/state.js"></script>
 <script language="JavaScript" type="text/javascript" src="/general.js"></script>
@@ -50,6 +41,8 @@ p {
 <script language="JavaScript" type="text/javascript" src="/validator.js"></script>
 <script language="JavaScript" type="text/javascript" src="/js/jquery.js"></script>
 <script>
+var timeouts = [];
+
 function showclock(){
 	JS_timeObj.setTime(systime_millsec);
 	systime_millsec += 1000;
@@ -114,10 +107,10 @@ function applySettings(){
 
 var logfilelist="";
 function get_all_logfiles(){
-	setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 2000));
+	timeouts.push(setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 2000)));
 	eval(logfilelist);
 	if(document.getElementById("auto_refresh").checked){
-		setTimeout(get_all_logfiles, 5000);
+		timeouts.push(setTimeout(get_all_logfiles, 5000));
 	}
 }
 
@@ -126,7 +119,7 @@ function get_logfile(filename){
 		url: '/ext/uiScribe/'+filename+'.htm',
 		dataType: 'text',
 		error: function(xhr){
-			setTimeout(function(){get_logfile(filename);}, 2000);
+			timeouts.push(setTimeout(function(){get_logfile(filename);}, 2000));
 		},
 		success: function(data){
 			if(document.getElementById("auto_refresh").checked){
@@ -135,7 +128,7 @@ function get_logfile(filename){
 					if (document.getElementById("auto_scroll").checked){
 						$("#log_"+filename.substring(0,filename.indexOf("."))).animate({ scrollTop: 9999999 }, "slow");
 					}
-				} else {
+				} else{
 					document.getElementById("log_"+filename).innerHTML = data;
 					if (document.getElementById("auto_scroll").checked){
 						$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
@@ -159,14 +152,14 @@ function get_conf_file(){
 			logs.reverse();
 			logs=logs.filter(Boolean);
 			logfilelist="";
-			for (var i = 0; i < logs.length; i++) {
+			for (var i = 0; i < logs.length; i++){
 				var commentstart=logs[i].indexOf("#");
 				if (commentstart != -1){
 					continue
 				}
 				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
-				logfilelist+='setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 2000));';
+				logfilelist+='timeouts.push(setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 2000)));';
 			}
 			AddEventHandlers();
 			get_all_logfiles();
@@ -185,7 +178,7 @@ function DownloadLogFile(btnlog){
 	if(btnlog.name == "btnmessages"){
 		filepath='/ext/uiScribe/messages.htm'
 	}
-	else {
+	else{
 		filepath='/ext/uiScribe/'+btnlog.name.replace("btn","")+'.log.htm'
 	}
 	fetch(filepath).then(resp => resp.blob()).then(blob => {
@@ -210,43 +203,51 @@ function DownloadLogFile(btnlog){
 function BuildLogTable(name){
 	var loghtml='<div style="line-height:10px;">&nbsp;</div>';
 	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name.substring(0,name.indexOf("."))+'">';
-	loghtml+='<thead class="collapsible default-collapsed" ><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
-	loghtml+='<div class="collapsiblecontent">';
+	loghtml+='<thead class="collapsible-jquery"><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
 	loghtml+='<tr><td style="padding: 0px;">';
 	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>';
 	loghtml+='</td></tr>';
 	loghtml+='<tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">';
 	loghtml+='<input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'">';
-	loghtml+='</td></tr></div>';
+	loghtml+='</td></tr>';
 	loghtml+='</table>';
 	return loghtml;
 }
 
 function AddEventHandlers(){
-	$("thead.collapsible").click(function(){
+	$(".collapsible-jquery").click(function(){
 		$(this).siblings().toggle("slow");
-	})
+	});
 	
-	$(".default-collapsed").trigger("click");
+	ResizeAll("hide");
+	
 	$("#auto_refresh")[0].addEventListener("click", function(){ToggleRefresh();});
 	$("#auto_refresh")[0].addEventListener("click", function(){ToggleScroll();});
 }
 
 function ToggleRefresh(){
-	$("#auto_scroll").prop('disabled', function(i, v) { if (v) {get_all_logfiles();} });
+	$("#auto_scroll").prop('disabled', function(i, v){ if(v){get_all_logfiles();} else{ClearAllTimeouts();} });
 }
 
 function ToggleScroll(){
-	$("#auto_scroll").prop('disabled', function(i, v) { return !v; });
+	$("#auto_scroll").prop('disabled', function(i, v){ return !v; });
+}
+
+function ClearAllTimeouts(){
+	for (var i = 0; i < timeouts.length; i++){
+		clearTimeout(timeouts[i]);
+	}
 }
 
 function ResizeAll(action){
-	if(action=="show"){
-		$("thead.collapsible").siblings().toggle(true);
-	}
-	else {
-		$("thead.collapsible").siblings().toggle(false);
-	}
+	$(".collapsible-jquery").each(function(index,element){
+		if(action=="show"){
+			$(this).siblings().toggle(true);
+		}
+		else{
+			$(this).siblings().toggle(false);
+		}
+	});
 }
 </script>
 </head>
@@ -363,17 +364,15 @@ function ResizeAll(action){
 </table>
 <div style="line-height:10px;">&nbsp;</div>
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
-<thead class="collapsible default-collapsed">
+<thead class="collapsible-jquery">
 <tr><td colspan="2">System Messages (click to show/hide)</td></tr>
 </thead>
-<div class="collapsiblecontent">
 <tr><td style="padding: 0px;">
 <textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_messages" class="textarea_log_table" style="font-family:'Courier New', Courier, mono; font-size:11px;"><% nvram_dump("syslog.log",""); %></textarea>
 </td></tr>
 <tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">
 <input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btnmessages" id="btnmessages">
 </td></tr>
-</div>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
 </td>
