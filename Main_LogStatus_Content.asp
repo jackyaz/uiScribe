@@ -43,6 +43,8 @@ p {
 }
 
 </style>
+<link rel="stylesheet" type="text/css" href="/ext/logng_style.css">
+<script language="JavaScript" type="text/javascript" src="/ext/logng.js"></script>
 <script language="JavaScript" type="text/javascript" src="/state.js"></script>
 <script language="JavaScript" type="text/javascript" src="/general.js"></script>
 <script language="JavaScript" type="text/javascript" src="/popup.js"></script>
@@ -106,6 +108,23 @@ function initial(){
 	showbootTime();
 	showDST();
 	get_conf_file();
+	initSeverity();
+	setTimeout(get_log_data, 0);
+}
+
+function get_log_data(){
+	$.ajax({
+		url: '/ext/uiScribe/messages.htm',
+		dataType: 'text',
+		error: function(xhr){
+			setTimeout("get_log_data();", 1000);
+		},
+		success: function(response){
+			let el = document.getElementById("syslogContainer");
+			processLogFile(response);
+			setTimeout("get_log_data();", 5000);
+		}
+	});
 }
 
 function applySettings(){
@@ -362,6 +381,25 @@ function ResizeAll(action){
 </form>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
+<div id="syslogContainer" class="syslogContainer">
+												<table id="syslogTable" class="syslogTable">
+													<colgroup>
+														<col>
+													</colgroup>
+													<thead>
+														<tr>
+															<th colspan="5">Raw</th>
+															<th>Time</th>
+															<th>Hostname</th>
+															<th>Severity</th>
+															<th>Source</th>
+															<th>Message</th>
+														</tr>
+													</thead>
+													<tbody>
+													</tbody>
+												</table>
+											</div>
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
 <thead class="collapsible default-collapsed">
 <tr><td colspan="2">System Messages (click to show/hide)</td></tr>
