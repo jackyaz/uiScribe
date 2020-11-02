@@ -107,7 +107,7 @@ function applySettings(){
 
 var logfilelist="";
 function get_all_logfiles(){
-	timeouts.push(setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 2000)));
+	timeouts.push(setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 3000)));
 	eval(logfilelist);
 	if(document.getElementById("auto_refresh").checked){
 		timeouts.push(setTimeout(get_all_logfiles, 5000));
@@ -119,7 +119,7 @@ function get_logfile(filename){
 		url: '/ext/uiScribe/'+filename+'.htm',
 		dataType: 'text',
 		error: function(xhr){
-			timeouts.push(setTimeout(function(){get_logfile(filename);}, 2000));
+			timeouts.push(setTimeout(function(){get_logfile(filename);}, 3000));
 		},
 		success: function(data){
 			if(document.getElementById("auto_refresh").checked){
@@ -159,7 +159,7 @@ function get_conf_file(){
 				}
 				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
-				logfilelist+='timeouts.push(setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 2000)));';
+				logfilelist+='timeouts.push(setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 3000)));';
 			}
 			AddEventHandlers();
 			get_all_logfiles();
