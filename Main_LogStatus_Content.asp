@@ -41,7 +41,7 @@ thead.collapsible-jquery {
 <script language="JavaScript" type="text/javascript" src="/validator.js"></script>
 <script language="JavaScript" type="text/javascript" src="/js/jquery.js"></script>
 <script>
-var timeouts = [];
+var timeoutsenabled = true;
 
 function showclock(){
 	JS_timeObj.setTime(systime_millsec);
@@ -107,10 +107,14 @@ function applySettings(){
 
 var logfilelist="";
 function get_all_logfiles(){
-	timeouts.push(setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 3000)));
-	eval(logfilelist);
+	if(timeoutsenabled == true){
+		setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 3000));
+		eval(logfilelist);
+	}
 	if(document.getElementById("auto_refresh").checked){
-		timeouts.push(setTimeout(get_all_logfiles, 5000));
+		if(timeoutsenabled == true){
+			setTimeout(get_all_logfiles, 5000);
+		}
 	}
 }
 
@@ -118,20 +122,23 @@ function get_logfile(filename){
 	$.ajax({
 		url: '/ext/uiScribe/'+filename+'.htm',
 		dataType: 'text',
+		timeout: 3000,
 		error: function(xhr){
-			timeouts.push(setTimeout(function(){get_logfile(filename);}, 3000));
+			if(timeoutsenabled == true){
+				setTimeout(function(){get_logfile(filename);}, 3000);
+			}
 		},
 		success: function(data){
 			if(document.getElementById("auto_refresh").checked){
 				if(filename!="messages"){
 					document.getElementById("log_"+filename.substring(0,filename.indexOf("."))).innerHTML = data;
 					if (document.getElementById("auto_scroll").checked){
-						$("#log_"+filename.substring(0,filename.indexOf("."))).animate({ scrollTop: 9999999 }, "slow");
+						$("#log_"+filename.substring(0,filename.indexOf("."))).scrollTop(9999999);
 					}
 				} else{
 					document.getElementById("log_"+filename).innerHTML = data;
 					if (document.getElementById("auto_scroll").checked){
-						$("#log_"+filename).animate({ scrollTop: 9999999 }, "slow");
+						$("#log_"+filename).scrollTop(9999999);
 					}
 				}
 			}
@@ -142,6 +149,7 @@ function get_logfile(filename){
 function get_conf_file(){
 	$.ajax({
 		url: '/ext/uiScribe/logs.htm',
+		timeout: 2000,
 		dataType: 'text',
 		error: function(xhr){
 			setTimeout(get_conf_file, 1000);
@@ -159,7 +167,7 @@ function get_conf_file(){
 				}
 				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
-				logfilelist+='timeouts.push(setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 3000)));';
+				logfilelist+='setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 3000));';
 			}
 			AddEventHandlers();
 			get_all_logfiles();
@@ -226,17 +234,11 @@ function AddEventHandlers(){
 }
 
 function ToggleRefresh(){
-	$("#auto_scroll").prop('disabled', function(i, v){ if(v){get_all_logfiles();} else{ClearAllTimeouts();} });
+	$("#auto_scroll").prop('disabled', function(i, v){ if(v){timeoutsenabled=true;get_all_logfiles();} else{timeoutsenabled=false;} });
 }
 
 function ToggleScroll(){
 	$("#auto_scroll").prop('disabled', function(i, v){ return !v; });
-}
-
-function ClearAllTimeouts(){
-	for (var i = 0; i < timeouts.length; i++){
-		clearTimeout(timeouts[i]);
-	}
 }
 
 function ResizeAll(action){
