@@ -34,12 +34,13 @@ thead.collapsible-jquery {
   cursor: default !important;
 }
 </style>
+<script language="JavaScript" type="text/javascript" src="/ext/shared-jy/jquery.js"></script>
 <script language="JavaScript" type="text/javascript" src="/state.js"></script>
 <script language="JavaScript" type="text/javascript" src="/general.js"></script>
 <script language="JavaScript" type="text/javascript" src="/popup.js"></script>
 <script language="JavaScript" type="text/javascript" src="/help.js"></script>
+<script language="JavaScript" type="text/javascript" src="/ext/shared-jy/detect.js"></script>
 <script language="JavaScript" type="text/javascript" src="/validator.js"></script>
-<script language="JavaScript" type="text/javascript" src="/js/jquery.js"></script>
 <script>
 var timeoutsenabled = true;
 
