@@ -172,10 +172,10 @@ function DownloadLogFile(btnlog){
 	$(btnlog).addClass("btndisabled");
 	var filepath = "";
 	if(btnlog.name == "btnmessages"){
-		filepath='/ext/uiScribe/messages.htm'
+		filepath='/ext/uiScribe/messages.htm';
 	}
 	else{
-		filepath='/ext/uiScribe/'+btnlog.name.replace("btn","")+'.log.htm'
+		filepath='/ext/uiScribe/'+btnlog.name.replace("btn","")+'.log.htm';
 	}
 	fetch(filepath).then(resp => resp.blob()).then(blob => {
 		const url = window.URL.createObjectURL(blob);
