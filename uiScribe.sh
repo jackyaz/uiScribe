@@ -266,6 +266,47 @@ Create_Symlinks(){
 	done < "$SCRIPT_DIR/.logs"
 }
 
+Logs_FromSettings(){
+	SETTINGSFILE="/jffs/addons/custom_settings.txt"
+	LOGS_USER="$SCRIPT_DIR/.logs_user"
+	if [ -f "$SETTINGSFILE" ]; then
+		if grep -q "uiscribe_logs_enabled" "$SETTINGSFILE"; then
+			Print_Output true "Updated logs from WebUI found, merging into $LOGS_USER" "$PASS"
+			cp -a "$LOGS_USER" "$LOGS_USER.bak"
+			SETTINGVALUE="$(grep "uiscribe_logs_enabled" "$SETTINGSFILE" | cut -f2 -d' ')"
+			sed -i "\\~uiscribe_logs_enabled~d" "$SETTINGSFILE"
+			
+			syslog-ng --preprocess-into="$SCRIPT_DIR/tmplogs.txt" && grep -A 1 "destination" "$SCRIPT_DIR/tmplogs.txt" | grep "file(\"" | grep -v "#" | grep -v "messages" | sed -e 's/file("//;s/".*$//' | awk '{$1=$1;print}' > "$SCRIPT_DIR/.logs"
+			rm -f "$SCRIPT_DIR/tmplogs.txt" 2>/dev/null
+			
+			echo "" > "$LOGS_USER"
+			
+			comment=" #excluded#"
+			while IFS='' read -r line || [ -n "$line" ]; do
+				if [ "$(grep -c "$line" "$LOGS_USER")" -eq 0 ]; then
+						printf "%s%s\\n" "$line" "$comment" >> "$LOGS_USER"
+				fi
+			done < "$SCRIPT_DIR/.logs"
+			
+			for log in $(echo "$SETTINGVALUE" | sed "s/,/ /g"); do
+				loglinenumber="$(grep -n "$log" "$LOGS_USER" | cut -f1 -d':')"
+				logline="$(sed "$loglinenumber!d" "$LOGS_USER" | awk '{$1=$1};1')"
+				
+				if echo "$logline" | grep -q "#excluded" ; then
+					sed -i "$loglinenumber"'s/ #excluded#//' "$LOGS_USER"
+				fi
+			done
+			
+			awk 'NF' "$LOGS_USER" > /tmp/uiscribe-logs
+			mv /tmp/uiscribe-logs "$LOGS_USER"
+			
+			Print_Output true "Merge of updated logs from WebUI completed successfully" "$PASS"
+		else
+			Print_Output true "No updated logs from WebUI found, no merge into $LOGS_USER necessary" "$PASS"
+		fi
+	fi
+}
+
 Generate_Log_List(){
 	ScriptHeader
 	goback="false"
