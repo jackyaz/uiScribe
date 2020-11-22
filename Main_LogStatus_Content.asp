@@ -105,42 +105,32 @@ function applySettings(){
 	document.config_form.submit();
 }
 
-var logfilelist="";
-function get_all_logfiles(){
-	if(timeoutsenabled == true){
-		setTimeout(function(){get_logfile('messages');},Math.round(Math.random() * 3000));
-		eval(logfilelist);
-	}
-	if(document.getElementById("auto_refresh").checked){
-		if(timeoutsenabled == true){
-			setTimeout(get_all_logfiles, 5000);
-		}
-	}
-}
-
 function get_logfile(filename){
+	var filenamesafe = filename.replace(".log","");
 	$.ajax({
 		url: '/ext/uiScribe/'+filename+'.htm',
 		dataType: 'text',
 		timeout: 3000,
 		error: function(xhr){
-			if(timeoutsenabled == true){
-				setTimeout(function(){get_logfile(filename);}, 3000);
+			if(timeoutsenabled == true && window["timeoutenabled_"+filenamesafe] == true){
+				window["timeout_"+filenamesafe] = setTimeout(get_logfile, 2000, filename);
 			}
 		},
 		success: function(data){
-			if(document.getElementById("auto_refresh").checked){
-				if(filename!="messages"){
+			if(timeoutsenabled == true && window["timeoutenabled_"+filenamesafe] == true){
+				if(filename != "messages"){
 					document.getElementById("log_"+filename.substring(0,filename.indexOf("."))).innerHTML = data;
 					if (document.getElementById("auto_scroll").checked){
 						$("#log_"+filename.substring(0,filename.indexOf("."))).scrollTop(9999999);
 					}
-				} else{
+				}
+				else{
 					document.getElementById("log_"+filename).innerHTML = data;
 					if (document.getElementById("auto_scroll").checked){
 						$("#log_"+filename).scrollTop(9999999);
 					}
 				}
+				window["timeout_"+filenamesafe] = setTimeout(get_logfile, 3000, filename);
 			}
 		}
 	});
@@ -159,7 +149,6 @@ function get_conf_file(){
 			logs.sort();
 			logs.reverse();
 			logs=logs.filter(Boolean);
-			logfilelist="";
 			for (var i = 0; i < logs.length; i++){
 				var commentstart=logs[i].indexOf("#");
 				if (commentstart != -1){
@@ -167,10 +156,8 @@ function get_conf_file(){
 				}
 				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
 				$("#table_messages").after(BuildLogTable(filename));
-				logfilelist+='setTimeout(function(){get_logfile("'+filename+'");},Math.round(Math.random() * 3000));';
 			}
 			AddEventHandlers();
-			get_all_logfiles();
 		}
 	});
 }
@@ -211,12 +198,12 @@ function DownloadLogFile(btnlog){
 function BuildLogTable(name){
 	var loghtml='<div style="line-height:10px;">&nbsp;</div>';
 	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name.substring(0,name.indexOf("."))+'">';
-	loghtml+='<thead class="collapsible-jquery"><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
+	loghtml+='<thead class="collapsible-jquery" id="thead_'+name.substring(0,name.indexOf("."))+'"><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
 	loghtml+='<tr><td style="padding: 0px;">';
 	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>';
 	loghtml+='</td></tr>';
 	loghtml+='<tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">';
-	loghtml+='<input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'">';
+	loghtml+='<input type="button" onclick="DownloadLogFile(this);" value="Download log file" class="button_gen btndownload" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'">';
 	loghtml+='</td></tr>';
 	loghtml+='</table>';
 	return loghtml;
@@ -224,30 +211,64 @@ function BuildLogTable(name){
 
 function AddEventHandlers(){
 	$(".collapsible-jquery").click(function(){
-		$(this).siblings().toggle("slow");
+		var filename = $(this).prop("id").replace("thead_","");
+		if(filename != "messages"){
+			filename+=".log";
+		}
+		var filenamesafe = filename.replace(".log","");
+		if($(this).siblings().is(":hidden") == true){
+			window["timeoutenabled_"+filenamesafe] = true;
+			get_logfile(filename);
+		}
+		else{
+			clearTimeout(window["timeout_"+filenamesafe]);
+			window["timeoutenabled_"+filenamesafe] = false;
+		}
+		$(this).siblings().toggle("fast");
 	});
 	
 	ResizeAll("hide");
 	
-	$("#auto_refresh")[0].addEventListener("click", function(){ToggleRefresh();});
-	$("#auto_refresh")[0].addEventListener("click", function(){ToggleScroll();});
+	$("#thead_messages").trigger("click");
 }
 
 function ToggleRefresh(){
-	$("#auto_scroll").prop('disabled', function(i, v){ if(v){timeoutsenabled=true;get_all_logfiles();} else{timeoutsenabled=false;} });
-}
-
-function ToggleScroll(){
-	$("#auto_scroll").prop('disabled', function(i, v){ return !v; });
+	if($("#auto_refresh").prop('checked') == true){
+		$("#auto_scroll").prop('disabled',false)
+		timeoutsenabled=true;
+		
+		$(".collapsible-jquery").each(function(index,element){
+			var filename = $(this).prop("id").replace("thead_","");
+			if(filename != "messages"){
+				filename+=".log";
+			}
+			if($(this).siblings().is(":hidden") == false){
+				get_logfile(filename);
+			}
+		});
+	}
+	else{
+		$("#auto_scroll").prop('disabled',true)
+		timeoutsenabled=false;
+	}
 }
 
 function ResizeAll(action){
 	$(".collapsible-jquery").each(function(index,element){
 		if(action=="show"){
 			$(this).siblings().toggle(true);
+			var filename = $(this).prop("id").replace("thead_","");
+			window["timeoutenabled_"+filename] = true;
+			if(filename != "messages"){
+				filename+=".log";
+			}
+			get_logfile(filename);
 		}
 		else{
 			$(this).siblings().toggle(false);
+			var filename = $(this).prop("id").replace("thead_","");
+			window["timeoutenabled_"+filename] = false;
+			clearTimeout(window["timeout_"+filename]);
 		}
 	});
 }
@@ -301,15 +322,10 @@ function ResizeAll(action){
 <th>Uptime</th>
 <td><span id="boot_days"></span> days <span id="boot_hours"></span> hours <span id="boot_minutes"></span> minute(s) <span id="boot_seconds"></span> seconds</td>
 </tr>
-<!--<tr style="display:none;">
+<tr style="display:none;">
 <td>
-<input type="hidden" name="current_page" value="Main_LogStatus_Content.asp">
-<input type="hidden" name="next_page" value="Main_LogStatus_Content.asp">
-<input type="hidden" name="action_mode" value="apply">
-<input type="hidden" name="action_script" value="restart_logger">
-<input type="hidden" name="action_wait" value="5">
 <input type="text" maxlength="15" class="input_15_table" name="log_ipaddr" value="<% nvram_get("log_ipaddr"); %>" onkeypress="return validator.isIPAddr(this, event)" autocorrect="off" autocapitalize="off">
-<label style="padding-left:15px;">Port:</label><input type="text" class="input_6_table" maxlength="5" name="log_port" onkeypress="return validator.isNumber(this,event);" onblur="validator.numberRange(this, 0, 65535);" value='<% nvram_get("log_port"); %>' autocorrect="off" autocapitalize="off">
+<label style="padding-left:15px;">Port:</label><input type="text" class="input_6_table" maxlength="5" name="log_port" onkeypress="return validator.isNumber(this,event);" onblur="validator.numberRange(this, 0, 65535);" value="<% nvram_get('log_port'); %>" autocorrect="off" autocapitalize="off">
 </td>
 </tr>
 <tr style="display:none;">
@@ -328,7 +344,7 @@ function ResizeAll(action){
 </td>
 </tr>
 <tr style="display:none;">
-<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(50,12);">Log only messages more urgent than</a></th>
+<th><a class="hintstyle" href="javascript:void(0);" onclick="openHint(50,12);">Log only messages more urgent than</a></th>
 <td>
 <select name="log_level" class="input_option">
 <option value="1" <% nvram_match("log_level", "1", "selected"); %>>alert</option>
@@ -341,39 +357,39 @@ function ResizeAll(action){
 <option value="8" <% nvram_match("log_level", "8", "selected"); %>>all</option>
 </select>
 </td>
-</tr>-->
+</tr>
 </table>
 <div class="apply_gen" valign="top" style="display:none;"><input class="button_gen" onclick="applySettings();" type="button" value="Apply" /></div>
 </form>
 <div style="line-height:10px;">&nbsp;</div>
-<div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh">Auto refresh</div>
+<div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh" onclick="ToggleRefresh();">Auto refresh</div>
 <div style="color:#FFCC00;"><input type="checkbox" checked id="auto_scroll">Scroll to bottom on refresh?</div>
 <table class="apply_gen">
 <form name="formui_buttons">
 <tr class="apply_gen" valign="top" align="center">
 <td>
-<input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onclick="ResizeAll('show')" type="button">
+<input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onclick="ResizeAll('show');" type="button">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen" onclick="ResizeAll('hide')" type="button">
+<input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen" onclick="ResizeAll('hide');" type="button">
 </td>
 </tr>
 <tr class="apply_gen" valign="top" align="center">
 <td>
-<input style="text-align:center;" id="btn_DownloadAll" value="Download All" class="button_gen" onclick="DownloadAllLogFile()" type="button">
+<input style="text-align:center;" id="btn_DownloadAll" value="Download All" class="button_gen" onclick="DownloadAllLogFile();" type="button">
 </td>
 </tr>
 </form>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_messages">
-<thead class="collapsible-jquery">
+<thead class="collapsible-jquery" id="thead_messages">
 <tr><td colspan="2">System Messages (click to show/hide)</td></tr>
 </thead>
 <tr><td style="padding: 0px;">
 <textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_messages" class="textarea_log_table" style="font-family:'Courier New', Courier, mono; font-size:11px;"><% nvram_dump("syslog.log",""); %></textarea>
 </td></tr>
 <tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">
-<input type="button" onclick="DownloadLogFile(this)" value="Download log file" class="button_gen btndownload" name="btnmessages" id="btnmessages">
+<input type="button" onclick="DownloadLogFile(this);" value="Download log file" class="button_gen btndownload" name="btnmessages" id="btnmessages">
 </td></tr>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
