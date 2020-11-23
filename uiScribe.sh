@@ -300,6 +300,13 @@ Logs_FromSettings(){
 			awk 'NF' "$LOGS_USER" > /tmp/uiscribe-logs
 			mv /tmp/uiscribe-logs "$LOGS_USER"
 			
+			rm -f "$SCRIPT_WEB_DIR/"*.htm 2>/dev/null
+			ln -s "$SCRIPT_DIR/.logs_user" "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
+			ln -s "/opt/var/log/messages" "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
+			while IFS='' read -r line || [ -n "$line" ]; do
+				ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
+			done < "$SCRIPT_DIR/.logs"
+			
 			Print_Output true "Merge of updated logs from WebUI completed successfully" "$PASS"
 		else
 			Print_Output true "No updated logs from WebUI found, no merge into $LOGS_USER necessary" "$PASS"
