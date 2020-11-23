@@ -147,7 +147,7 @@ Update_Version(){
 		Update_File shared-jy.tar.gz
 		
 		if [ "$isupdate" != "false" ]; then
-			Update_File "Main_LogStatus_Content.asp"
+			Update_File Main_LogStatus_Content.asp
 			
 			/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" -o "/jffs/scripts/$SCRIPT_NAME" && Print_Output true "$SCRIPT_NAME successfully updated"
 			chmod 0755 /jffs/scripts/"$SCRIPT_NAME"
@@ -167,7 +167,7 @@ Update_Version(){
 	if [ "$1" = "force" ]; then
 		serverver=$(/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" | grep "SCRIPT_VERSION=" | grep -m1 -oE 'v[0-9]{1,2}([.][0-9]{1,2})([.][0-9]{1,2})')
 		Print_Output true "Downloading latest version ($serverver) of $SCRIPT_NAME" "$PASS"
-		Update_File "Main_LogStatus_Content.asp"
+		Update_File Main_LogStatus_Content.asp
 		Update_File shared-jy.tar.gz
 		/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" -o "/jffs/scripts/$SCRIPT_NAME" && Print_Output true "$SCRIPT_NAME successfully updated"
 		chmod 0755 /jffs/scripts/"$SCRIPT_NAME"
@@ -187,7 +187,7 @@ Update_File(){
 		Download_File "$SCRIPT_REPO/$1" "$tmpfile"
 		if ! diff -q "$tmpfile" "$SCRIPT_DIR/$1" >/dev/null 2>&1; then
 			Download_File "$SCRIPT_REPO/$1" "$SCRIPT_DIR/$1"
-			Print_Output "true" "New version of $1 downloaded" "$PASS"
+			Print_Output true "New version of $1 downloaded" "$PASS"
 			Mount_WebUI
 		fi
 		rm -f "$tmpfile"
@@ -220,7 +220,7 @@ Validate_Number(){
 	else
 		formatted="$(echo "$1" | sed -e 's/|/ /g')"
 		if [ -z "$3" ]; then
-			Print_Output "false" "$formatted - $2 is not a number" "$ERR"
+			Print_Output false "$formatted - $2 is not a number" "$ERR"
 		fi
 		return 1
 	fi
@@ -264,6 +264,10 @@ Create_Symlinks(){
 	while IFS='' read -r line || [ -n "$line" ]; do
 		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
+	
+	if [ ! -d "$SHARED_WEB_DIR" ]; then
+		ln -s "$SHARED_DIR" "$SHARED_WEB_DIR" 2>/dev/null
+	fi
 }
 
 Logs_FromSettings(){
@@ -320,9 +324,9 @@ Generate_Log_List(){
 	printf "Retrieving list of log files...\\n\\n"
 	logcount="$(wc -l < "$SCRIPT_DIR/.logs_user")"
 	COUNTER=1
-	until [ $COUNTER -gt "$logcount" ]; do
+	until [ "$COUNTER" -gt "$logcount" ]; do
 		logfile="$(sed "$COUNTER!d" "$SCRIPT_DIR/.logs_user" | awk '{$1=$1};1')"
-		if [ "$COUNTER" -lt "10" ]; then
+		if [ "$COUNTER" -lt 10 ]; then
 			printf "%s)  %s\\n" "$COUNTER" "$logfile"
 		else
 			printf "%s) %s\\n" "$COUNTER" "$logfile"
@@ -334,12 +338,12 @@ Generate_Log_List(){
 	
 	while true; do
 	printf "\\n\\e[1mPlease select a log to toggle inclusion in %s (1-%s):\\e[0m\\n" "$SCRIPT_NAME" "$logcount"
-	read -r "log"
+	read -r log
 	
 	if [ "$log" = "e" ]; then
 		goback="true"
 		break
-	elif ! Validate_Number "" "$log" "silent"; then
+	elif ! Validate_Number "" "$log" silent; then
 		printf "\\n\\e[31mPlease enter a valid number (1-%s)\\e[0m\\n" "$logcount"
 	else
 		if [ "$log" -lt 1 ] || [ "$log" -gt "$logcount" ]; then
@@ -439,13 +443,13 @@ Download_File(){
 Mount_WebUI(){
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
 	
-	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" "/www/Main_LogStatus_Content.asp"
+	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" /www/Main_LogStatus_Content.asp
 }
 
 Shortcut_script(){
 	case $1 in
 		create)
-			if [ -d "/opt/bin" ] && [ ! -f "/opt/bin/$SCRIPT_NAME" ] && [ -f "/jffs/scripts/$SCRIPT_NAME" ]; then
+			if [ -d /opt/bin ] && [ ! -f "/opt/bin/$SCRIPT_NAME" ] && [ -f "/jffs/scripts/$SCRIPT_NAME" ]; then
 				ln -s /jffs/scripts/"$SCRIPT_NAME" /opt/bin
 				chmod 0755 /opt/bin/"$SCRIPT_NAME"
 			fi
@@ -461,7 +465,7 @@ Shortcut_script(){
 PressEnter(){
 	while true; do
 		printf "Press enter to continue..."
-		read -r "key"
+		read -r key
 		case "$key" in
 			*)
 				break
@@ -506,7 +510,7 @@ MainMenu(){
 	
 	while true; do
 		printf "Choose an option:    "
-		read -r "menu"
+		read -r menu
 		case "$menu" in
 			1)
 				if Check_Lock "menu"; then
@@ -516,7 +520,7 @@ MainMenu(){
 				break
 			;;
 			rf)
-				if Check_Lock "menu"; then
+				if Check_Lock menu; then
 					Menu_ProcessUIScripts "force"
 				fi
 				PressEnter
@@ -524,7 +528,7 @@ MainMenu(){
 			;;
 			u)
 				printf "\\n"
-				if Check_Lock "menu"; then
+				if Check_Lock menu; then
 					Menu_Update
 				fi
 				PressEnter
@@ -532,7 +536,7 @@ MainMenu(){
 			;;
 			uf)
 				printf "\\n"
-				if Check_Lock "menu"; then
+				if Check_Lock menu; then
 					Menu_ForceUpdate
 				fi
 				PressEnter
@@ -546,7 +550,7 @@ MainMenu(){
 			z)
 				while true; do
 					printf "\\n\\e[1mAre you sure you want to uninstall %s? (y/n)\\e[0m\\n" "$SCRIPT_NAME"
-					read -r "confirm"
+					read -r confirm
 					case "$confirm" in
 						y|Y)
 							Menu_Uninstall
@@ -575,16 +579,16 @@ Check_Requirements(){
 	if [ "$(nvram get jffs2_scripts)" -ne 1 ]; then
 		nvram set jffs2_scripts=1
 		nvram commit
-		Print_Output "true" "Custom JFFS Scripts enabled" "$WARN"
+		Print_Output true "Custom JFFS Scripts enabled" "$WARN"
 	fi
 	
-	if [ ! -f "/opt/bin/opkg" ]; then
-		Print_Output "true" "Entware not detected!" "$ERR"
+	if [ ! -f /opt/bin/opkg ]; then
+		Print_Output true "Entware not detected!" "$ERR"
 		CHECKSFAILED="true"
 	fi
 	
-	if [ ! -f "/opt/bin/scribe" ]; then
-		Print_Output "true" "Scribe not installed!" "$ERR"
+	if [ ! -f /opt/bin/scribe ]; then
+		Print_Output true "Scribe not installed!" "$ERR"
 		CHECKSFAILED="true"
 	fi
 	
@@ -596,13 +600,13 @@ Check_Requirements(){
 }
 
 Menu_Install(){
-	Print_Output "true" "Welcome to $SCRIPT_NAME $SCRIPT_VERSION, a script by JackYaz"
+	Print_Output true "Welcome to $SCRIPT_NAME $SCRIPT_VERSION, a script by JackYaz"
 	sleep 1
 	
-	Print_Output "true" "Checking your router meets the requirements for $SCRIPT_NAME"
+	Print_Output true "Checking your router meets the requirements for $SCRIPT_NAME"
 	
 	if ! Check_Requirements; then
-		Print_Output "true" "Requirements for $SCRIPT_NAME not met, please see above for the reason(s)" "$CRIT"
+		Print_Output true "Requirements for $SCRIPT_NAME not met, please see above for the reason(s)" "$CRIT"
 		PressEnter
 		Clear_Lock
 		rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
@@ -612,12 +616,13 @@ Menu_Install(){
 	Create_Dirs
 	Set_Version_Custom_Settings local
 	Create_Symlinks
-	Update_File "Main_LogStatus_Content.asp"
+	Update_File Main_LogStatus_Content.asp
 	Update_File shared-jy.tar.gz
 	Auto_Startup create 2>/dev/null
+	Auto_ServiceEvent create 2>/dev/null
 	Shortcut_script create
 	
-	Print_Output "true" "uiScribe installed successfully!" "$PASS"
+	Print_Output true "uiScribe installed successfully!" "$PASS"
 	
 	Clear_Lock
 }
@@ -639,6 +644,7 @@ Menu_Startup(){
 	Set_Version_Custom_Settings local
 	Create_Symlinks
 	Auto_Startup create 2>/dev/null
+	Auto_ServiceEvent create 2>/dev/null
 	Shortcut_script create
 	Mount_WebUI
 	Clear_Lock
@@ -655,15 +661,16 @@ Menu_ForceUpdate(){
 }
 
 Menu_Uninstall(){
-	Print_Output "true" "Removing $SCRIPT_NAME..." "$PASS"
+	Print_Output true "Removing $SCRIPT_NAME..." "$PASS"
 	Auto_Startup delete 2>/dev/null
+	Auto_ServiceEvent delete 2>/dev/null
 	Shortcut_script delete
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
 	rm -rf "$SCRIPT_DIR" 2>/dev/null
 	rm -rf "$SCRIPT_WEB_DIR" 2>/dev/null
 	rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
 	Clear_Lock
-	Print_Output "true" "Uninstall completed" "$PASS"
+	Print_Output true "Uninstall completed" "$PASS"
 }
 
 NTP_Ready(){
