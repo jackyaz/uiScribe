@@ -25,6 +25,16 @@ thead.collapsible-jquery {
   cursor: pointer;
 }
 
+thead.collapsible-jquery-config {
+  color: white;
+  padding: 0px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  cursor: pointer;
+}
+
 .btndisabled {
   border: 1px solid #999999 !important;
   background-color: #cccccc !important;
@@ -32,6 +42,16 @@ thead.collapsible-jquery {
   background: #cccccc !important;
   text-shadow: none !important;
   cursor: default !important;
+}
+
+input.settingvalue {
+  margin-left: 3px !important;
+}
+
+label.settingvalue {
+  vertical-align: top !important;
+  width: 90px !important;
+  display: inline-block !important;
 }
 </style>
 <script language="JavaScript" type="text/javascript" src="/ext/shared-jy/jquery.js"></script>
@@ -42,6 +62,27 @@ thead.collapsible-jquery {
 <script language="JavaScript" type="text/javascript" src="/ext/shared-jy/detect.js"></script>
 <script language="JavaScript" type="text/javascript" src="/validator.js"></script>
 <script>
+function showDST(){
+	var system_timezone_dut = "<% nvram_get("time_zone"); %>";
+	if(system_timezone_dut.search("DST") >= 0 && "<% nvram_get("time_zone_dst"); %>" == "1"){
+	document.getElementById('dstzone').style.display = "";
+	document.getElementById('dstzone').innerHTML = "* Daylight savings time is enabled in this time zone.";
+	}
+}
+
+var custom_settings;
+function LoadCustomSettings(){
+	custom_settings = <% get_custom_settings(); %>;
+	for (var prop in custom_settings){
+		if(Object.prototype.hasOwnProperty.call(custom_settings, prop)){
+			if(prop.indexOf("uiscribe") != -1 && prop.indexOf("uiscribe_version") == -1){
+				eval("delete custom_settings."+prop)
+			}
+		}
+	}
+}
+
+var $j = jQuery.noConflict(); //avoid conflicts on John's fork (state.js)
 var timeoutsenabled = true;
 
 function showclock(){
@@ -75,26 +116,50 @@ function showbootTime(){
 	setTimeout(showbootTime, 1000);
 }
 
-function clearLog(){
-	document.form1.target = "hidden_frame";
-	document.form1.action_mode.value = " Clear ";
-	document.form1.submit();
-	location.href = location.href;
-}
-
-function showDST(){
-	var system_timezone_dut = "<% nvram_get("time_zone"); %>";
-	if(system_timezone_dut.search("DST") >= 0 && "<% nvram_get("time_zone_dst"); %>" == "1"){
-	document.getElementById('dstzone').style.display = "";
-	document.getElementById('dstzone').innerHTML = "* Daylight savings time is enabled in this time zone.";
-	}
-}
-
 function capitalise(string){
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+function GetCookie(cookiename,returntype){
+	var s;
+	if((s = cookie.get("uiscribe_"+cookiename)) != null){
+		return cookie.get("uiscribe_"+cookiename);
+	}
+	else{
+		if(returntype == "string"){
+			return "";
+		}
+		else if(returntype == "number"){
+			return 0;
+		}
+	}
+}
+
+function SetCookie(cookiename,cookievalue){
+	cookie.set("uiscribe_"+cookiename, cookievalue, 31);
+}
+
+$j.fn.serializeObject = function(){
+	var o = custom_settings;
+	
+	var logsenabled = [];
+	$j.each($j("input[name='uiscribe_log_enabled']:checked"), function(){
+		logsenabled.push(this.value);
+	});
+	var logsenabledstring = logsenabled.join(",");
+	o["uiscribe_logs_enabled"] = logsenabledstring;
+	return o;
+};
+
+function SetCurrentPage(){
+	document.config_form.next_page.value = window.location.pathname.substring(1);
+	document.config_form.current_page.value = window.location.pathname.substring(1);
+}
+
 function initial(){
+	SetCurrentPage();
+	LoadCustomSettings();
+	ScriptUpdateLayout();
 	show_menu();
 	showclock();
 	showbootTime();
@@ -102,13 +167,27 @@ function initial(){
 	get_conf_file();
 }
 
-function applySettings(){
-	document.config_form.submit();
+function ScriptUpdateLayout(){
+	var localver = GetVersionNumber("local");
+	var serverver = GetVersionNumber("server");
+	$j("#scripttitle").text($j("#scripttitle").text()+" - "+localver);
+	$j("#uiscribe_version_local").text(localver);
+	
+	if(localver != serverver && serverver != "N/A"){
+		$j("#uiscribe_version_server").text("Updated version available: "+serverver);
+		showhide("btnChkUpdate", false);
+		showhide("uiscribe_version_server", true);
+		showhide("btnDoUpdate", true);
+	}
+}
+
+function reload(){
+	location.reload(true);
 }
 
 function get_logfile(filename){
 	var filenamesafe = filename.replace(".log","");
-	$.ajax({
+	$j.ajax({
 		url: '/ext/uiScribe/'+filename+'.htm',
 		dataType: 'text',
 		timeout: 3000,
@@ -122,13 +201,13 @@ function get_logfile(filename){
 				if(filename != "messages"){
 					document.getElementById("log_"+filename.substring(0,filename.indexOf("."))).innerHTML = data;
 					if (document.getElementById("auto_scroll").checked){
-						$("#log_"+filename.substring(0,filename.indexOf("."))).scrollTop(9999999);
+						$j("#log_"+filename.substring(0,filename.indexOf("."))).scrollTop(9999999);
 					}
 				}
 				else{
 					document.getElementById("log_"+filename).innerHTML = data;
 					if (document.getElementById("auto_scroll").checked){
-						$("#log_"+filename).scrollTop(9999999);
+						$j("#log_"+filename).scrollTop(9999999);
 					}
 				}
 				window["timeout_"+filenamesafe] = setTimeout(get_logfile, 3000, filename);
@@ -138,7 +217,7 @@ function get_logfile(filename){
 }
 
 function get_conf_file(){
-	$.ajax({
+	$j.ajax({
 		url: '/ext/uiScribe/logs.htm',
 		timeout: 2000,
 		dataType: 'text',
@@ -148,28 +227,56 @@ function get_conf_file(){
 		success: function(data){
 			var logs=data.split("\n");
 			logs.sort();
-			logs.reverse();
 			logs=logs.filter(Boolean);
+			
+			var logconfigtablehtml='<tr id="rowenabledlogs"><th width="40%">Logs to display in WebUI</th><td class="settingvalue">';
+			
+			for (var i = 0; i < logs.length; i++){
+				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
+				if(filename.indexOf("#") != -1){
+					filename = filename.substring(0,filename.indexOf("#")).replace(".log","").replace(".htm","").trim();
+					logconfigtablehtml+='<input type="checkbox" name="uiscribe_log_enabled" id="uiscribe_log_enabled_'+ filename +'" class="input settingvalue" value="'+filename+'">';
+					logconfigtablehtml+='<label for="uiscribe_log_enabled_'+ filename +'" class="settingvalue">'+filename+'</label>';
+				}
+				else{
+					filename = filename.replace(".log","").replace(".htm","").trim();
+					logconfigtablehtml+='<input type="checkbox" name="uiscribe_log_enabled" id="uiscribe_log_enabled_'+ filename +'" class="input settingvalue" value="'+filename+'" checked>';
+					logconfigtablehtml+='<label for="uiscribe_log_enabled_'+ filename +'" class="settingvalue">'+filename+'</label>';
+				}
+				if((i+1) % 4 == 0){
+					logconfigtablehtml+='<br />';
+				}
+			}
+			
+			logconfigtablehtml+='</td></tr>';
+			logconfigtablehtml+='<tr class="apply_gen" valign="top" height="35px" id="rowsaveconfig">';
+			logconfigtablehtml+='<td colspan="2" style="background-color:rgb(77, 89, 93);">';
+			logconfigtablehtml+='<input type="button" onclick="SaveConfig();" value="Save" class="button_gen" name="button">';
+			logconfigtablehtml+='</td></tr>';
+			$j("#table_config").append(logconfigtablehtml);
+			logs.reverse();
+			
 			for (var i = 0; i < logs.length; i++){
 				var commentstart=logs[i].indexOf("#");
 				if (commentstart != -1){
 					continue
 				}
-				var filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
-				$("#table_messages").after(BuildLogTable(filename));
+				filename=logs[i].substring(logs[i].lastIndexOf("/")+1);
+				$j("#table_messages").after(BuildLogTable(filename));
 			}
+			
 			AddEventHandlers();
 		}
 	});
 }
 
 function DownloadAllLogFile(){
-	$(".btndownload").each(function(index){$(this).trigger("click");});
+	$j(".btndownload").each(function(index){$j(this).trigger("click");});
 }
 
 function DownloadLogFile(btnlog){
-	$(btnlog).prop('disabled', true);
-	$(btnlog).addClass("btndisabled");
+	$j(btnlog).prop('disabled', true);
+	$j(btnlog).addClass("btndisabled");
 	var filepath = "";
 	if(btnlog.name == "btnmessages"){
 		filepath='/ext/uiScribe/messages.htm';
@@ -186,14 +293,88 @@ function DownloadLogFile(btnlog){
 		document.body.appendChild(a);
 		a.click();
 		window.URL.revokeObjectURL(url);
-		$(btnlog).prop('disabled', false);
-		$(btnlog).removeClass("btndisabled");
+		$j(btnlog).prop('disabled', false);
+		$j(btnlog).removeClass("btndisabled");
 	})
 	.catch(() => {
 		console.log('File download failed!');
-		$(btnlog).prop('disabled', false);
-		$(btnlog).removeClass("btndisabled");
+		$j(btnlog).prop('disabled', false);
+		$j(btnlog).removeClass("btndisabled");
 	});
+}
+
+function update_status(){
+	$j.ajax({
+		url: '/ext/uiScribe/detect_update.js',
+		dataType: 'script',
+		timeout: 3000,
+		error: function(xhr){
+			setTimeout(update_status, 1000);
+		},
+		success: function(){
+			if(updatestatus == "InProgress"){
+				setTimeout(update_status, 1000);
+			}
+			else{
+				document.getElementById("imgChkUpdate").style.display = "none";
+				showhide("uiscribe_version_server", true);
+				if(updatestatus != "None"){
+					$j("#uiscribe_version_server").text("Updated version available: "+updatestatus);
+					showhide("btnChkUpdate", false);
+					showhide("btnDoUpdate", true);
+				}
+				else{
+					$j("#uiscribe_version_server").text("No update available");
+					showhide("btnChkUpdate", true);
+					showhide("btnDoUpdate", false);
+				}
+			}
+		}
+	});
+}
+
+function CheckUpdate(){
+	showhide("btnChkUpdate", false);
+	document.formScriptActions.action_script.value="start_uiScribecheckupdate";
+	document.formScriptActions.submit();
+	document.getElementById("imgChkUpdate").style.display = "";
+	setTimeout(update_status, 2000);
+}
+
+function DoUpdate(){
+	var action_script_tmp = "start_uiScribedoupdate";
+	document.config_form.action_script.value = action_script_tmp;
+	var restart_time = 10;
+	document.config_form.action_wait.value = restart_time;
+	showLoading();
+	document.config_form.submit();
+}
+
+function SaveConfig(){
+	document.getElementById('amng_custom').value = JSON.stringify($j('config_form').serializeObject());
+	var action_script_tmp = "start_uiScribeconfig";
+	document.config_form.action_script.value = action_script_tmp;
+	var restart_time = 5;
+	document.config_form.action_wait.value = restart_time;
+	showLoading();
+	document.config_form.submit();
+}
+
+function GetVersionNumber(versiontype){
+	var versionprop;
+	if(versiontype == "local"){
+		versionprop = custom_settings.uiscribe_version_local;
+	}
+	else if(versiontype == "server"){
+		versionprop = custom_settings.uiscribe_version_server;
+	}
+	
+	if(typeof versionprop == 'undefined' || versionprop == null){
+		return "N/A";
+	}
+	else{
+		return versionprop;
+	}
 }
 
 function BuildLogTable(name){
@@ -211,13 +392,13 @@ function BuildLogTable(name){
 }
 
 function AddEventHandlers(){
-	$(".collapsible-jquery").click(function(){
-		var filename = $(this).prop("id").replace("thead_","");
+	$j(".collapsible-jquery").click(function(){
+		var filename = $j(this).prop("id").replace("thead_","");
 		if(filename != "messages"){
 			filename+=".log";
 		}
 		var filenamesafe = filename.replace(".log","");
-		if($(this).siblings().is(":hidden") == true){
+		if($j(this).siblings().is(":hidden") == true){
 			window["timeoutenabled_"+filenamesafe] = true;
 			get_logfile(filename);
 		}
@@ -225,40 +406,44 @@ function AddEventHandlers(){
 			clearTimeout(window["timeout_"+filenamesafe]);
 			window["timeoutenabled_"+filenamesafe] = false;
 		}
-		$(this).siblings().toggle("fast");
+		$j(this).siblings().toggle("fast");
+	});
+	
+	$j(".collapsible-jquery-config").click(function(){
+		$j(this).siblings().toggle("fast");
 	});
 	
 	ResizeAll("hide");
 	
-	$("#thead_messages").trigger("click");
+	$j("#thead_messages").trigger("click");
 }
 
 function ToggleRefresh(){
-	if($("#auto_refresh").prop('checked') == true){
-		$("#auto_scroll").prop('disabled',false)
+	if($j("#auto_refresh").prop('checked') == true){
+		$j("#auto_scroll").prop('disabled',false)
 		timeoutsenabled=true;
 		
-		$(".collapsible-jquery").each(function(index,element){
-			var filename = $(this).prop("id").replace("thead_","");
+		$j(".collapsible-jquery").each(function(index,element){
+			var filename = $j(this).prop("id").replace("thead_","");
 			if(filename != "messages"){
 				filename+=".log";
 			}
-			if($(this).siblings().is(":hidden") == false){
+			if($j(this).siblings().is(":hidden") == false){
 				get_logfile(filename);
 			}
 		});
 	}
 	else{
-		$("#auto_scroll").prop('disabled',true)
+		$j("#auto_scroll").prop('disabled',true)
 		timeoutsenabled=false;
 	}
 }
 
 function ResizeAll(action){
-	$(".collapsible-jquery").each(function(index,element){
+	$j(".collapsible-jquery").each(function(index,element){
 		if(action=="show"){
-			$(this).siblings().toggle(true);
-			var filename = $(this).prop("id").replace("thead_","");
+			$j(this).siblings().toggle(true);
+			var filename = $j(this).prop("id").replace("thead_","");
 			window["timeoutenabled_"+filename] = true;
 			if(filename != "messages"){
 				filename+=".log";
@@ -266,8 +451,8 @@ function ResizeAll(action){
 			get_logfile(filename);
 		}
 		else{
-			$(this).siblings().toggle(false);
-			var filename = $(this).prop("id").replace("thead_","");
+			$j(this).siblings().toggle(false);
+			var filename = $j(this).prop("id").replace("thead_","");
 			window["timeoutenabled_"+filename] = false;
 			clearTimeout(window["timeout_"+filename]);
 		}
@@ -280,16 +465,6 @@ function ResizeAll(action){
 <div id="Loading" class="popup_bg"></div>
 <iframe name="hidden_frame" id="hidden_frame" src="about:blank" width="0" height="0" frameborder="0"></iframe>
 <form method="post" name="form" action="apply.cgi" target="hidden_frame">
-<input type="hidden" name="current_page" value="Main_LogStatus_Content.asp">
-<input type="hidden" name="next_page" value="Main_LogStatus_Content.asp">
-<input type="hidden" name="group_id" value="">
-<input type="hidden" name="modified" value="0">
-<input type="hidden" name="action_mode" value="">
-<input type="hidden" name="action_wait" value="">
-<input type="hidden" name="first_time" value="">
-<input type="hidden" name="action_script" value="">
-<input type="hidden" name="preferred_lang" id="preferred_lang" value="<% nvram_get("preferred_lang"); %>">
-<input type="hidden" name="firmver" value="<% nvram_get("firmver"); %>">
 </form>
 <table class="content" align="center" cellpadding="0" cellspacing="0">
 <tr>
@@ -310,8 +485,42 @@ function ResizeAll(action){
 <div class="formfonttitle">System Log - enhanced by Scribe</div>
 <div style="margin:10px 0 10px 5px;" class="splitLine"></div>
 <div class="formfontdesc">This page shows the detailed system's activities.</div>
-<form method="post" name="config_form" action="start_apply.htm" target="hidden_frame">
+<form method="post" name="config_form" action="/start_apply.htm" target="hidden_frame">
+<input type="hidden" name="group_id" value="">
+<input type="hidden" name="current_page" value="">
+<input type="hidden" name="next_page" value="">
+<input type="hidden" name="modified" value="0">
+<input type="hidden" name="action_mode" value="apply">
+<input type="hidden" name="action_wait" value="15">
+<input type="hidden" name="action_script" value="">
+<input type="hidden" name="first_time" value="">
+<input type="hidden" name="SystemCmd" value="">
+<input type="hidden" name="preferred_lang" id="preferred_lang" value="<% nvram_get("preferred_lang"); %>">
+<input type="hidden" name="firmver" value="<% nvram_get("firmver"); %>">
+<input type="hidden" name="amng_custom" id="amng_custom" value="">
+<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable" style="border:0px;" id="table_buttons">
+<thead class="collapsible-jquery-config" id="scripttools">
+<tr><td colspan="2">Utilities (click to expand/collapse)</td></tr>
+</thead>
+<tr>
+<th width="20%">Version information</th>
+<td>
+<span id="uiscribe_version_local" style="color:#FFFFFF;"></span>
+&nbsp;&nbsp;&nbsp;
+<span id="uiscribe_version_server" style="display:none;">Update version</span>
+&nbsp;&nbsp;&nbsp;
+<input type="button" class="button_gen" onclick="CheckUpdate();" value="Check" id="btnChkUpdate">
+<img id="imgChkUpdate" style="display:none;vertical-align:middle;" src="images/InternetScan.gif"/>
+<input type="button" class="button_gen" onclick="DoUpdate();" value="Update" id="btnDoUpdate" style="display:none;">
+&nbsp;&nbsp;&nbsp;
+</td>
+</tr>
+</table>
+<div style="line-height:10px;">&nbsp;</div>
 <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
+<thead class="collapsible-jquery-config" id="systeminfo">
+<tr><td colspan="2">System Info (click to expand/collapse)</td></tr>
+</thead>
 <tr>
 <th width="20%">System Time</th>
 <td>
@@ -359,23 +568,33 @@ function ResizeAll(action){
 </select>
 </td>
 </tr>
+<tr class="apply_gen" valign="top" style="display:none;"><td><input class="button_gen" onclick="applySettings();" type="button" value="Apply" /></td></tr>
 </table>
-<div class="apply_gen" valign="top" style="display:none;"><input class="button_gen" onclick="applySettings();" type="button" value="Apply" /></div>
+<div style="line-height:10px;">&nbsp;</div>
+<table width="100%" border="1" align="center" cellpadding="2" cellspacing="0" bordercolor="#6b8fa3" class="FormTable" style="border:0px;" id="table_config">
+<thead class="collapsible-jquery-config" id="scriptconfig">
+<tr><td colspan="2">General Configuration (click to expand/collapse)</td></tr>
+</thead>
+</table>
 </form>
 <div style="line-height:10px;">&nbsp;</div>
-<div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh" onclick="ToggleRefresh();">Auto refresh</div>
-<div style="color:#FFCC00;"><input type="checkbox" checked id="auto_scroll">Scroll to bottom on refresh?</div>
-<table class="apply_gen">
+<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
+<thead class="collapsible-jquery-config" id="tablelogs">
+<tr><td colspan="2">Logs (click to expand/collapse)</td></tr>
+</thead>
+<tr><td style="padding-left:4px;">
+<div style="color:#FFCC00;"><input type="checkbox" checked id="auto_refresh" onclick="ToggleRefresh();">Auto refresh&nbsp;&nbsp;&nbsp;<input type="checkbox" checked id="auto_scroll">Scroll to bottom on refresh?</div>
+<table class="apply_gen" style="margin-top:0px;">
 <form name="formui_buttons">
 <tr class="apply_gen" valign="top" align="center">
-<td>
+<td style="border:0px;">
 <input style="text-align:center;" id="btn_ShowAll" value="Show All" class="button_gen" onclick="ResizeAll('show');" type="button">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input style="text-align:center;" id="btn_HideAll" value="Hide All" class="button_gen" onclick="ResizeAll('hide');" type="button">
 </td>
 </tr>
 <tr class="apply_gen" valign="top" align="center">
-<td>
+<td style="border:0px;">
 <input style="text-align:center;" id="btn_DownloadAll" value="Download All" class="button_gen" onclick="DownloadAllLogFile();" type="button">
 </td>
 </tr>
@@ -391,7 +610,11 @@ function ResizeAll(action){
 </td></tr>
 <tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">
 <input type="button" onclick="DownloadLogFile(this);" value="Download log file" class="button_gen btndownload" name="btnmessages" id="btnmessages">
-</td></tr>
+</td>
+</tr>
+</table>
+</tr>
+</td>
 </table>
 <div style="line-height:10px;">&nbsp;</div>
 </td>
@@ -404,6 +627,14 @@ function ResizeAll(action){
 <td width="10" align="center" valign="top"></td>
 </tr>
 </table>
+<form method="post" name="formScriptActions" action="/start_apply.htm" target="hidden_frame">
+<input type="hidden" name="productid" value="<% nvram_get("productid"); %>">
+<input type="hidden" name="current_page" value="">
+<input type="hidden" name="next_page" value="">
+<input type="hidden" name="action_mode" value="apply">
+<input type="hidden" name="action_script" value="">
+<input type="hidden" name="action_wait" value="">
+</form>
 <div id="footer"></div>
 </body>
 </html>
