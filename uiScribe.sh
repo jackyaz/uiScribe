@@ -732,6 +732,7 @@ NTP_Ready "$@"
 Entware_Ready "$@"
 
 if [ -z "$1" ]; then
+	sed -i '/\/dev\/null/d' "$SCRIPT_DIR/.logs_user"
 	Menu_Startup
 	ScriptHeader
 	MainMenu
