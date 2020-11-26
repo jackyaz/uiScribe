@@ -17,7 +17,7 @@
 readonly SCRIPT_NAME="uiScribe"
 readonly SCRIPT_VERSION="v1.4.0"
 readonly SCRIPT_BRANCH="develop"
-readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/""$SCRIPT_NAME""/""$SCRIPT_BRANCH"
+readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/$SCRIPT_NAME/$SCRIPT_BRANCH"
 readonly SCRIPT_DIR="/jffs/addons/$SCRIPT_NAME.d"
 readonly SCRIPT_CONF="$SCRIPT_DIR/config"
 readonly SCRIPT_PAGE_DIR="$(readlink /www/user)"
@@ -260,7 +260,7 @@ Create_Symlinks(){
 	
 	rm -f "$SCRIPT_WEB_DIR/"*.htm 2>/dev/null
 	ln -s "$SCRIPT_DIR/.logs_user" "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
-	ln -s "/opt/var/log/messages" "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
+	ln -s /opt/var/log/messages "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 	while IFS='' read -r line || [ -n "$line" ]; do
 		ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 	done < "$SCRIPT_DIR/.logs"
@@ -306,7 +306,7 @@ Logs_FromSettings(){
 			
 			rm -f "$SCRIPT_WEB_DIR/"*.htm 2>/dev/null
 			ln -s "$SCRIPT_DIR/.logs_user" "$SCRIPT_WEB_DIR/logs.htm" 2>/dev/null
-			ln -s "/opt/var/log/messages" "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
+			ln -s /opt/var/log/messages "$SCRIPT_WEB_DIR/messages.htm" 2>/dev/null
 			while IFS='' read -r line || [ -n "$line" ]; do
 				ln -s "$line" "$SCRIPT_WEB_DIR/$(basename "$line").htm" 2>/dev/null
 			done < "$SCRIPT_DIR/.logs"
@@ -513,7 +513,7 @@ MainMenu(){
 		read -r menu
 		case "$menu" in
 			1)
-				if Check_Lock "menu"; then
+				if Check_Lock menu; then
 					Menu_CustomiseLogList
 				fi
 				PressEnter
@@ -521,7 +521,7 @@ MainMenu(){
 			;;
 			rf)
 				if Check_Lock menu; then
-					Menu_ProcessUIScripts "force"
+					Menu_ProcessUIScripts force
 				fi
 				PressEnter
 				break
