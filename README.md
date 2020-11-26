@@ -10,10 +10,6 @@ Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforum
 
 uiScribe is free to use under the [GNU General Public License version 3](https://opensource.org/licenses/GPL-3.0) (GPL 3.0).
 
-Example log page (sections added/removed dynamically depending on which filters you have installed in Scribe)
-![WebUI](https://puu.sh/DE3ou/7b836b07d5.png)
-![CLI](https://puu.sh/GRzco/73d693ecb2.png)
-
 ### Supporting development
 Love the script and want to support future development? Any and all donations gratefully received!
 
