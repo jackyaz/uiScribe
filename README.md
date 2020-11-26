@@ -48,7 +48,6 @@ If this does not work, you will need to use the full path:
 
 ![CLI](https://puu.sh/GRzco/73d693ecb2.png)
 
-
 ## Help
 Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/uiscribe-custom-system-log-page-for-scribed-logs.57040/)
 
