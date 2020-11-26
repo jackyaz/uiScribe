@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/jackyaz/uiScribe.svg?branch=master)](https://travis-ci.com/jackyaz/uiScribe)
 
 ## v1.4.0
-### Updated on 2020-11-22
+### Updated on 2020-11-26
 ## About
 Customise the System Log page to show log files created by Scribe (syslog-ng). Requires [**Scribe**](https://github.com/cynicastic/scribe)
 Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforums.com/threads/scribe-syslog-ng-and-logrotate-installer.55853/)
@@ -11,7 +11,8 @@ Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforum
 uiScribe is free to use under the [GNU General Public License version 3](https://opensource.org/licenses/GPL-3.0) (GPL 3.0).
 
 Example log page (sections added/removed dynamically depending on which filters you have installed in Scribe)
-![Menu UI](https://puu.sh/DE3ou/7b836b07d5.png)
+![WebUI](https://puu.sh/DE3ou/7b836b07d5.png)
+![CLI](https://puu.sh/GRzco/73d693ecb2.png)
 
 ### Supporting development
 Love the script and want to support future development? Any and all donations gratefully received!
@@ -31,18 +32,26 @@ Using your preferred SSH client/terminal, copy and paste the following command, 
 ```
 
 ## Usage
+### WebUI
+uiScribe replaces the System Log page in the WebUI.
+
 To launch the uiScribe menu after installation, use:
 ```sh
 uiScribe
 ```
 
+### Command Line
 If this does not work, you will need to use the full path:
 ```sh
 /jffs/scripts/uiScribe
 ```
 
-## Updating
-Launch uiScribe and select option u
+## Screenshots
+
+![WebUI](https://puu.sh/GRzoX/b2a7129ae7.png)
+
+![CLI](https://puu.sh/GRzco/73d693ecb2.png)
+
 
 ## Help
 Please post about any issues and problems here: [uiScribe on SNBForums](https://www.snbforums.com/threads/uiscribe-custom-system-log-page-for-scribed-logs.57040/)
