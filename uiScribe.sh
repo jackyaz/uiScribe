@@ -752,7 +752,12 @@ if [ -z "$1" ]; then
 	NTP_Ready
 	Entware_Ready
 	sed -i '/\/dev\/null/d' "$SCRIPT_DIR/.logs_user"
-	Menu_Startup
+	Create_Dirs
+	Set_Version_Custom_Settings local
+	Create_Symlinks
+	Auto_Startup create 2>/dev/null
+	Auto_ServiceEvent create 2>/dev/null
+	Shortcut_script create
 	ScriptHeader
 	MainMenu
 	exit 0
