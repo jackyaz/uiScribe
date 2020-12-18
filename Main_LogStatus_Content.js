@@ -298,7 +298,7 @@ function BuildLogTable(name){
 	loghtml+='<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#4D595D" class="FormTable" id="table_'+name.substring(0,name.indexOf("."))+'">';
 	loghtml+='<thead class="collapsible-jquery" id="thead_'+name.substring(0,name.indexOf("."))+'"><tr><td colspan="2">'+name+' (click to show/hide)</td></tr></thead>';
 	loghtml+='<tr><td style="padding: 0px;">';
-	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log goes here</textarea>';
+	loghtml+='<textarea cols="63" rows="27" wrap="off" readonly="readonly" id="log_'+name.substring(0,name.indexOf("."))+'" class="textarea_log_table" style="font-family:\'Courier New\', Courier, mono; font-size:11px;">Log file will display here. If you are seeing this message, it means the log file cannot be loaded. Please check your USB to check the /opt/var/log directory exists.</textarea>';
 	loghtml+='</td></tr>';
 	loghtml+='<tr class="apply_gen" valign="top" height="35px"><td style="background-color:rgb(77, 89, 93);border:0px;">';
 	loghtml+='<input type="button" onclick="DownloadLogFile(this);" value="Download log file" class="button_gen btndownload" name="btn'+name.substring(0,name.indexOf("."))+'" id="btn'+name.substring(0,name.indexOf("."))+'">';
