@@ -655,6 +655,7 @@ Menu_ProcessUIScripts(){
 }
 
 Menu_Startup(){
+	# shellcheck disable=SC2009
 	if [ -z "$PPID" ] || ! ps | grep "$PPID" | grep -iq "scribe"; then
 		if [ -z "$1" ]; then
 			Print_Output true "Missing argument for startup, not starting $SCRIPT_NAME" "$WARN"
