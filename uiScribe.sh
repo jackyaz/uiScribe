@@ -655,15 +655,17 @@ Menu_ProcessUIScripts(){
 }
 
 Menu_Startup(){
-	if [ -z "$1" ]; then
-		Print_Output true "Missing argument for startup, not starting $SCRIPT_NAME" "$WARN"
-		exit 1
-	elif [ "$1" != "force" ]; then
-		if [ ! -f "$1/entware/bin/opkg" ]; then
-			Print_Output true "$1 does not contain Entware, not starting $SCRIPT_NAME" "$WARN"
+	if [ -z "$PPID" ] || ! ps | grep "$PPID" | grep -iq "scribe"; then
+		if [ -z "$1" ]; then
+			Print_Output true "Missing argument for startup, not starting $SCRIPT_NAME" "$WARN"
 			exit 1
-		else
-			Print_Output true "$1 contains Entware, starting $SCRIPT_NAME" "$WARN"
+		elif [ "$1" != "force" ]; then
+			if [ ! -f "$1/entware/bin/opkg" ]; then
+				Print_Output true "$1 does not contain Entware, not starting $SCRIPT_NAME" "$WARN"
+				exit 1
+			else
+				Print_Output true "$1 contains Entware, starting $SCRIPT_NAME" "$WARN"
+			fi
 		fi
 	fi
 	
