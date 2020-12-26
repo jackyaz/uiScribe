@@ -45,6 +45,14 @@ Print_Output(){
 	fi
 }
 
+Firmware_Version_Check(){
+	if nvram get rc_support | grep -qF "am_addons"; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 ### Code for these functions inspired by https://github.com/Adamm00 - credit to @Adamm ###
 Check_Lock(){
 	if [ -f "/tmp/$SCRIPT_NAME.lock" ]; then
@@ -604,6 +612,12 @@ Check_Requirements(){
 	
 	if [ ! -f /opt/bin/scribe ]; then
 		Print_Output true "Scribe not installed!" "$ERR"
+		CHECKSFAILED="true"
+	fi
+	
+	if ! Firmware_Version_Check; then
+		Print_Output true "Unsupported firmware version detected" "$ERR"
+		Print_Output true "$SCRIPT_NAME requires Merlin 384.15/384.13_4 or Fork 43E5 (or later)" "$ERR"
 		CHECKSFAILED="true"
 	fi
 	
