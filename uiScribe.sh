@@ -512,7 +512,7 @@ ScriptHeader(){
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
 	printf "\\e[1m##               %s on %-9s                ##\\e[0m\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
-	printf "\\e[1m##        https://github.com/jackyaz/uiScribe       ##\\e[0m\\n"
+	printf "\\e[1m##        https://github.com/jackyaz/%s       ##\\e[0m\\n" "$SCRIPT_NAME"
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
 	printf "\\e[1m######################################################\\e[0m\\n"
 	printf "\\n"
@@ -651,7 +651,7 @@ Menu_Install(){
 	Auto_ServiceEvent create 2>/dev/null
 	Shortcut_script create
 	
-	Print_Output true "uiScribe installed successfully!" "$PASS"
+	Print_Output true "$SCRIPT_NAME installed successfully!" "$PASS"
 	
 	Clear_Lock
 }
