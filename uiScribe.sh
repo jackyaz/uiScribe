@@ -280,7 +280,7 @@ Create_Symlinks(){
 }
 
 Logs_FromSettings(){
-	SETTINGSFILE="/jffs/addons/custom_settings.txt"
+	SETTINGSFILE=/jffs/addons/custom_settings.txt
 	LOGS_USER="$SCRIPT_DIR/.logs_user"
 	if [ -f "$SETTINGSFILE" ]; then
 		if grep -q "uiscribe_logs_enabled" "$SETTINGSFILE"; then
@@ -465,7 +465,6 @@ Download_File(){
 
 Mount_WebUI(){
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
-	
 	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" /www/Main_LogStatus_Content.asp
 }
 
@@ -473,13 +472,13 @@ Shortcut_Script(){
 	case $1 in
 		create)
 			if [ -d /opt/bin ] && [ ! -f "/opt/bin/$SCRIPT_NAME" ] && [ -f "/jffs/scripts/$SCRIPT_NAME" ]; then
-				ln -s /jffs/scripts/"$SCRIPT_NAME" /opt/bin
-				chmod 0755 /opt/bin/"$SCRIPT_NAME"
+				ln -s "/jffs/scripts/$SCRIPT_NAME" /opt/bin
+				chmod 0755 "/opt/bin/$SCRIPT_NAME"
 			fi
 		;;
 		delete)
 			if [ -f "/opt/bin/$SCRIPT_NAME" ]; then
-				rm -f /opt/bin/"$SCRIPT_NAME"
+				rm -f "/opt/bin/$SCRIPT_NAME"
 			fi
 		;;
 	esac
@@ -524,7 +523,7 @@ MainMenu(){
 	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
 	printf "rf.   Clear user preferences for displayed logs\\n\\n"
 	printf "u.    Check for updates\\n"
-	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
+	printf "uf.   Force update %s with latest version\\n\\n" "$SCRIPT_NAME"
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
 	printf "z.    Uninstall %s\\n" "$SCRIPT_NAME"
 	printf "\\n"
