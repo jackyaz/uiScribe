@@ -716,6 +716,9 @@ Menu_Uninstall(){
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
 	rm -rf "$SCRIPT_DIR" 2>/dev/null
 	rm -rf "$SCRIPT_WEB_DIR" 2>/dev/null
+	SETTINGSFILE=/jffs/addons/custom_settings.txt
+	sed -i '/uiscribe_version_local/d' "$SETTINGSFILE"
+	sed -i '/uiscribe_version_server/d' "$SETTINGSFILE"
 	rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
 	Clear_Lock
 	Print_Output true "Uninstall completed" "$PASS"
