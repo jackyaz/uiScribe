@@ -15,9 +15,9 @@
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
-readonly SCRIPT_VERSION="v1.4.1"
-readonly SCRIPT_BRANCH="master"
-readonly SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/$SCRIPT_NAME/$SCRIPT_BRANCH"
+readonly SCRIPT_VERSION="v1.4.2"
+SCRIPT_BRANCH="master"
+SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/$SCRIPT_NAME/$SCRIPT_BRANCH"
 readonly SCRIPT_DIR="/jffs/addons/$SCRIPT_NAME.d"
 readonly SCRIPT_CONF="$SCRIPT_DIR/config"
 readonly SCRIPT_PAGE_DIR="$(readlink /www/user)"
@@ -42,6 +42,14 @@ Print_Output(){
 		printf "\\e[1m$3%s: $2\\e[0m\\n\\n" "$SCRIPT_NAME"
 	else
 		printf "\\e[1m$3%s: $2\\e[0m\\n\\n" "$SCRIPT_NAME"
+	fi
+}
+
+Firmware_Version_Check(){
+	if nvram get rc_support | grep -qF "am_addons"; then
+		return 0
+	else
+		return 1
 	fi
 }
 
@@ -272,7 +280,7 @@ Create_Symlinks(){
 }
 
 Logs_FromSettings(){
-	SETTINGSFILE="/jffs/addons/custom_settings.txt"
+	SETTINGSFILE=/jffs/addons/custom_settings.txt
 	LOGS_USER="$SCRIPT_DIR/.logs_user"
 	if [ -f "$SETTINGSFILE" ]; then
 		if grep -q "uiscribe_logs_enabled" "$SETTINGSFILE"; then
@@ -457,21 +465,20 @@ Download_File(){
 
 Mount_WebUI(){
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
-	
 	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" /www/Main_LogStatus_Content.asp
 }
 
-Shortcut_script(){
+Shortcut_Script(){
 	case $1 in
 		create)
 			if [ -d /opt/bin ] && [ ! -f "/opt/bin/$SCRIPT_NAME" ] && [ -f "/jffs/scripts/$SCRIPT_NAME" ]; then
-				ln -s /jffs/scripts/"$SCRIPT_NAME" /opt/bin
-				chmod 0755 /opt/bin/"$SCRIPT_NAME"
+				ln -s "/jffs/scripts/$SCRIPT_NAME" /opt/bin
+				chmod 0755 "/opt/bin/$SCRIPT_NAME"
 			fi
 		;;
 		delete)
 			if [ -f "/opt/bin/$SCRIPT_NAME" ]; then
-				rm -f /opt/bin/"$SCRIPT_NAME"
+				rm -f "/opt/bin/$SCRIPT_NAME"
 			fi
 		;;
 	esac
@@ -504,7 +511,7 @@ ScriptHeader(){
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
 	printf "\\e[1m##               %s on %-9s                ##\\e[0m\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
-	printf "\\e[1m##        https://github.com/jackyaz/uiScribe       ##\\e[0m\\n"
+	printf "\\e[1m##        https://github.com/jackyaz/%s       ##\\e[0m\\n" "$SCRIPT_NAME"
 	printf "\\e[1m##                                                  ##\\e[0m\\n"
 	printf "\\e[1m######################################################\\e[0m\\n"
 	printf "\\n"
@@ -516,7 +523,7 @@ MainMenu(){
 	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
 	printf "rf.   Clear user preferences for displayed logs\\n\\n"
 	printf "u.    Check for updates\\n"
-	printf "uf.   Update %s with latest version (force update)\\n\\n" "$SCRIPT_NAME"
+	printf "uf.   Force update %s with latest version\\n\\n" "$SCRIPT_NAME"
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
 	printf "z.    Uninstall %s\\n" "$SCRIPT_NAME"
 	printf "\\n"
@@ -607,6 +614,12 @@ Check_Requirements(){
 		CHECKSFAILED="true"
 	fi
 	
+	if ! Firmware_Version_Check; then
+		Print_Output true "Unsupported firmware version detected" "$ERR"
+		Print_Output true "$SCRIPT_NAME requires Merlin 384.15/384.13_4 or Fork 43E5 (or later)" "$ERR"
+		CHECKSFAILED="true"
+	fi
+	
 	if [ "$CHECKSFAILED" = "false" ]; then
 		return 0
 	else
@@ -630,14 +643,15 @@ Menu_Install(){
 	
 	Create_Dirs
 	Set_Version_Custom_Settings local
+	Set_Version_Custom_Settings server "$SCRIPT_VERSION"
 	Create_Symlinks
 	Update_File Main_LogStatus_Content.asp
 	Update_File shared-jy.tar.gz
 	Auto_Startup create 2>/dev/null
 	Auto_ServiceEvent create 2>/dev/null
-	Shortcut_script create
+	Shortcut_Script create
 	
-	Print_Output true "uiScribe installed successfully!" "$PASS"
+	Print_Output true "$SCRIPT_NAME installed successfully!" "$PASS"
 	
 	Clear_Lock
 }
@@ -679,7 +693,7 @@ Menu_Startup(){
 	Create_Symlinks
 	Auto_Startup create 2>/dev/null
 	Auto_ServiceEvent create 2>/dev/null
-	Shortcut_script create
+	Shortcut_Script create
 	Mount_WebUI
 	Clear_Lock
 }
@@ -698,10 +712,13 @@ Menu_Uninstall(){
 	Print_Output true "Removing $SCRIPT_NAME..." "$PASS"
 	Auto_Startup delete 2>/dev/null
 	Auto_ServiceEvent delete 2>/dev/null
-	Shortcut_script delete
+	Shortcut_Script delete
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
 	rm -rf "$SCRIPT_DIR" 2>/dev/null
 	rm -rf "$SCRIPT_WEB_DIR" 2>/dev/null
+	SETTINGSFILE=/jffs/addons/custom_settings.txt
+	sed -i '/uiscribe_version_local/d' "$SETTINGSFILE"
+	sed -i '/uiscribe_version_server/d' "$SETTINGSFILE"
 	rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
 	Clear_Lock
 	Print_Output true "Uninstall completed" "$PASS"
@@ -760,7 +777,7 @@ if [ -z "$1" ]; then
 	Create_Symlinks
 	Auto_Startup create 2>/dev/null
 	Auto_ServiceEvent create 2>/dev/null
-	Shortcut_script create
+	Shortcut_Script create
 	ScriptHeader
 	MainMenu
 	exit 0
@@ -810,12 +827,14 @@ case "$1" in
 		exit 0
 	;;
 	develop)
-		sed -i 's/^readonly SCRIPT_BRANCH.*$/readonly SCRIPT_BRANCH="develop"/' "/jffs/scripts/$SCRIPT_NAME"
+		SCRIPT_BRANCH="develop"
+		SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/$SCRIPT_NAME/$SCRIPT_BRANCH"
 		Update_Version force
 		exit 0
 	;;
 	stable)
-		sed -i 's/^readonly SCRIPT_BRANCH.*$/readonly SCRIPT_BRANCH="master"/' "/jffs/scripts/$SCRIPT_NAME"
+		SCRIPT_BRANCH="master"
+		SCRIPT_REPO="https://raw.githubusercontent.com/jackyaz/$SCRIPT_NAME/$SCRIPT_BRANCH"
 		Update_Version force
 		exit 0
 	;;

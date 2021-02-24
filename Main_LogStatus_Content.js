@@ -1,6 +1,9 @@
 var $j = jQuery.noConflict(); //avoid conflicts on John's fork (state.js)
 var timeoutsenabled = true;
 
+var clockinterval;
+var bootinterval;
+
 function showclock(){
 	JS_timeObj.setTime(systime_millsec);
 	systime_millsec += 1000;
@@ -14,7 +17,6 @@ function showclock(){
 	timezone;*/ // Viz remove GMT timezone 2011.08
 	JS_timeObj.getFullYear();
 	document.getElementById("system_time").value = JS_timeObj2;
-	setTimeout(showclock, 1000);
 	if(navigator.appName.indexOf("Microsoft") >= 0)
 	document.getElementById("log_messages").style.width = "99%";
 }
@@ -29,7 +31,6 @@ function showbootTime(){
 	document.getElementById("boot_minutes").innerHTML = Minutes;
 	document.getElementById("boot_seconds").innerHTML = Seconds;
 	boottime += 1;
-	setTimeout(showbootTime, 1000);
 }
 
 function capitalise(string){
@@ -79,6 +80,8 @@ function initial(){
 	show_menu();
 	showclock();
 	showbootTime();
+	clockinterval = setInterval(showclock, 1000);
+	bootinterval = setInterval(showbootTime, 1000);
 	showDST();
 	get_conf_file();
 }
