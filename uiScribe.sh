@@ -468,6 +468,33 @@ Auto_Startup(){
 	esac
 }
 
+### function based on @dave14305's FlexQoS webconfigpage function ###
+Get_WebUI_URL(){
+	urlproto=""
+	urldomain=""
+	urlport=""
+	
+	if [ "$(nvram get http_enable)" -eq 1 ]; then
+		urlproto="https"
+	else
+		urlproto="http"
+	fi
+	if [ -n "$(nvram get lan_domain)" ]; then
+		urldomain="$(nvram get lan_hostname).$(nvram get lan_domain)"
+	else
+		urldomain="$(nvram get lan_ipaddr)"
+	fi
+	if [ "$(nvram get ${urlproto}_lanport)" -eq 80 ] || [ "$(nvram get ${urlproto}_lanport)" -eq 443 ]; then
+		urlport=""
+	else
+		urlport=":$(nvram get ${urlproto}_lanport)"
+	fi
+	
+	preurl="$(echo "${urlproto}://${urldomain}${urlport}" | tr "A-Z" "a-z")"
+	echo "${preurl}/Main_LogStatus_Content.asp"
+}
+### ###
+
 Download_File(){
 	/usr/sbin/curl -fsL --retry 3 "$1" -o "$2"
 }
