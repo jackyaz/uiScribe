@@ -1,19 +1,23 @@
 #!/bin/sh
 
-######################################################
-##                                                  ##
-##          _   _____              _  _             ##
-##         (_) / ____|            (_)| |            ##
-##   _   _  _ | (___    ___  _ __  _ | |__    ___   ##
-##  | | | || | \___ \  / __|| '__|| || '_ \  / _ \  ##
-##  | |_| || | ____) || (__ | |   | || |_) ||  __/  ##
-##   \__,_||_||_____/  \___||_|   |_||_.__/  \___|  ##
-##                                                  ##
-##        https://github.com/jackyaz/uiScribe       ##
-##                                                  ##
-######################################################
+########################################################
+##                                                    ##
+##           _   _____              _  _              ##
+##          (_) / ____|            (_)| |             ##
+##    _   _  _ | (___    ___  _ __  _ | |__    ___    ##
+##   | | | || | \___ \  / __|| '__|| || '_ \  / _ \   ##
+##   | |_| || | ____) || (__ | |   | || |_) ||  __/   ##
+##    \__,_||_||_____/  \___||_|   |_||_.__/  \___|   ##
+##                                                    ##
+##         https://github.com/jackyaz/uiScribe        ##
+##                                                    ##
+########################################################
 
+###########        Shellcheck directives      ##########
+# shellcheck disable=SC2009
+# shellcheck disable=SC2016
 # shellcheck disable=SC2155
+########################################################
 
 ### Start of script variables ###
 readonly SCRIPT_NAME="uiScribe"
@@ -34,16 +38,15 @@ readonly CRIT="\\e[41m"
 readonly ERR="\\e[31m"
 readonly WARN="\\e[33m"
 readonly PASS="\\e[32m"
+readonly SETTING="\\e[1m\\e[36m"
 ### End of output format variables ###
 
 # $1 = print to syslog, $2 = message to print, $3 = log level
 Print_Output(){
 	if [ "$1" = "true" ]; then
 		logger -t "$SCRIPT_NAME" "$2"
-		printf "\\e[1m$3%s: $2\\e[0m\\n\\n" "$SCRIPT_NAME"
-	else
-		printf "\\e[1m$3%s: $2\\e[0m\\n\\n" "$SCRIPT_NAME"
 	fi
+	printf "\\e[1m${3}%s\\e[0m\\n\\n" "$2"
 }
 
 Firmware_Version_Check(){
@@ -85,19 +88,19 @@ Clear_Lock(){
 ############################################################################
 
 Set_Version_Custom_Settings(){
-	SETTINGSFILE=/jffs/addons/custom_settings.txt
+	SETTINGSFILE="/jffs/addons/custom_settings.txt"
 	case "$1" in
 		local)
 			if [ -f "$SETTINGSFILE" ]; then
 				if [ "$(grep -c "uiscribe_version_local" $SETTINGSFILE)" -gt 0 ]; then
-					if [ "$SCRIPT_VERSION" != "$(grep "uiscribe_version_local" /jffs/addons/custom_settings.txt | cut -f2 -d' ')" ]; then
-						sed -i "s/uiscribe_version_local.*/uiscribe_version_local $SCRIPT_VERSION/" "$SETTINGSFILE"
+					if [ "$2" != "$(grep "uiscribe_version_local" /jffs/addons/custom_settings.txt | cut -f2 -d' ')" ]; then
+						sed -i "s/uiscribe_version_local.*/uiscribe_version_local $2/" "$SETTINGSFILE"
 					fi
 				else
-					echo "uiscribe_version_local $SCRIPT_VERSION" >> "$SETTINGSFILE"
+					echo "uiscribe_version_local $2" >> "$SETTINGSFILE"
 				fi
 			else
-				echo "uiscribe_version_local $SCRIPT_VERSION" >> "$SETTINGSFILE"
+				echo "uiscribe_version_local $2" >> "$SETTINGSFILE"
 			fi
 		;;
 		server)
@@ -119,7 +122,7 @@ Set_Version_Custom_Settings(){
 Update_Check(){
 	echo 'var updatestatus = "InProgress";' > "$SCRIPT_WEB_DIR/detect_update.js"
 	doupdate="false"
-	localver=$(grep "SCRIPT_VERSION=" /jffs/scripts/"$SCRIPT_NAME" | grep -m1 -oE 'v[0-9]{1,2}([.][0-9]{1,2})([.][0-9]{1,2})')
+	localver=$(grep "SCRIPT_VERSION=" "/jffs/scripts/$SCRIPT_NAME" | grep -m1 -oE 'v[0-9]{1,2}([.][0-9]{1,2})([.][0-9]{1,2})')
 	/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" | grep -qF "jackyaz" || { Print_Output true "404 error detected - stopping update" "$ERR"; return 1; }
 	serverver=$(/usr/sbin/curl -fsL --retry 3 "$SCRIPT_REPO/$SCRIPT_NAME.sh" | grep "SCRIPT_VERSION=" | grep -m1 -oE 'v[0-9]{1,2}([.][0-9]{1,2})([.][0-9]{1,2})')
 	if [ "$localver" != "$serverver" ]; then
@@ -225,13 +228,9 @@ Update_File(){
 }
 
 Validate_Number(){
-	if [ "$2" -eq "$2" ] 2>/dev/null; then
+	if [ "$1" -eq "$1" ] 2>/dev/null; then
 		return 0
 	else
-		formatted="$(echo "$1" | sed -e 's/|/ /g')"
-		if [ -z "$3" ]; then
-			Print_Output false "$formatted - $2 is not a number" "$ERR"
-		fi
 		return 1
 	fi
 }
@@ -264,7 +263,7 @@ Create_Symlinks(){
 	
 	while IFS='' read -r line || [ -n "$line" ]; do
 		if [ "$(grep -c "$line" "$SCRIPT_DIR/.logs_user")" -eq 0 ]; then
-				printf "%s\\n" "$line" >> "$SCRIPT_DIR/.logs_user"
+			printf "%s\\n" "$line" >> "$SCRIPT_DIR/.logs_user"
 		fi
 	done < "$SCRIPT_DIR/.logs"
 	
@@ -281,7 +280,7 @@ Create_Symlinks(){
 }
 
 Logs_FromSettings(){
-	SETTINGSFILE=/jffs/addons/custom_settings.txt
+	SETTINGSFILE="/jffs/addons/custom_settings.txt"
 	LOGS_USER="$SCRIPT_DIR/.logs_user"
 	if [ -f "$SETTINGSFILE" ]; then
 		if grep -q "uiscribe_logs_enabled" "$SETTINGSFILE"; then
@@ -347,13 +346,13 @@ Generate_Log_List(){
 	printf "\\ne)  Go back\\n"
 	
 	while true; do
-	printf "\\n\\e[1mPlease select a log to toggle inclusion in %s (1-%s):\\e[0m\\n" "$SCRIPT_NAME" "$logcount"
+	printf "\\n\\e[1mPlease select a log to toggle inclusion in %s (1-%s):\\e[0m  " "$SCRIPT_NAME" "$logcount"
 	read -r log
 	
 	if [ "$log" = "e" ]; then
 		goback="true"
 		break
-	elif ! Validate_Number "" "$log" silent; then
+	elif ! Validate_Number "$log"; then
 		printf "\\n\\e[31mPlease enter a valid number (1-%s)\\e[0m\\n" "$logcount"
 	else
 		if [ "$log" -lt 1 ] || [ "$log" -gt "$logcount" ]; then
@@ -382,7 +381,6 @@ Auto_ServiceEvent(){
 		create)
 			if [ -f /jffs/scripts/service-event ]; then
 				STARTUPLINECOUNT=$(grep -c '# '"$SCRIPT_NAME" /jffs/scripts/service-event)
-				# shellcheck disable=SC2016
 				STARTUPLINECOUNTEX=$(grep -cx "/jffs/scripts/$SCRIPT_NAME service_event"' "$@" & # '"$SCRIPT_NAME" /jffs/scripts/service-event)
 				
 				if [ "$STARTUPLINECOUNT" -gt 1 ] || { [ "$STARTUPLINECOUNTEX" -eq 0 ] && [ "$STARTUPLINECOUNT" -gt 0 ]; }; then
@@ -390,13 +388,11 @@ Auto_ServiceEvent(){
 				fi
 				
 				if [ "$STARTUPLINECOUNTEX" -eq 0 ]; then
-					# shellcheck disable=SC2016
 					echo "/jffs/scripts/$SCRIPT_NAME service_event"' "$@" & # '"$SCRIPT_NAME" >> /jffs/scripts/service-event
 				fi
 			else
 				echo "#!/bin/sh" > /jffs/scripts/service-event
 				echo "" >> /jffs/scripts/service-event
-				# shellcheck disable=SC2016
 				echo "/jffs/scripts/$SCRIPT_NAME service_event"' "$@" & # '"$SCRIPT_NAME" >> /jffs/scripts/service-event
 				chmod 0755 /jffs/scripts/service-event
 			fi
@@ -465,8 +461,10 @@ Download_File(){
 }
 
 Mount_WebUI(){
+	Print_Output true "Mounting WebUI page for $SCRIPT_NAME" "$PASS"
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
 	mount -o bind "$SCRIPT_DIR/Main_LogStatus_Content.asp" /www/Main_LogStatus_Content.asp
+	Print_Output true "Mounted $SCRIPT_NAME WebUI page as Main_LogStatus_Content.asp" "$PASS"
 }
 
 Shortcut_Script(){
@@ -501,20 +499,20 @@ PressEnter(){
 ScriptHeader(){
 	clear
 	printf "\\n"
-	printf "\\e[1m######################################################\\e[0m\\n"
-	printf "\\e[1m##                                                  ##\\e[0m\\n"
-	printf "\\e[1m##          _   _____              _  _             ##\\e[0m\\n"
-	printf "\\e[1m##         (_) / ____|            (_)| |            ##\\e[0m\\n"
-	printf "\\e[1m##   _   _  _ | (___    ___  _ __  _ | |__    ___   ##\\e[0m\\n"
-	printf "\\e[1m##  | | | || | \___ \  / __|| '__|| || '_ \  / _ \  ##\\e[0m\\n"
-	printf "\\e[1m##  | |_| || | ____) || (__ | |   | || |_) ||  __/  ##\\e[0m\\n"
-	printf "\\e[1m##   \__,_||_||_____/  \___||_|   |_||_.__/  \___|  ##\\e[0m\\n"
-	printf "\\e[1m##                                                  ##\\e[0m\\n"
-	printf "\\e[1m##               %s on %-9s                ##\\e[0m\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
-	printf "\\e[1m##                                                  ##\\e[0m\\n"
-	printf "\\e[1m##        https://github.com/jackyaz/%s       ##\\e[0m\\n" "$SCRIPT_NAME"
-	printf "\\e[1m##                                                  ##\\e[0m\\n"
-	printf "\\e[1m######################################################\\e[0m\\n"
+	printf "\\e[1m########################################################\\e[0m\\n"
+	printf "\\e[1m##                                                    ##\\e[0m\\n"
+	printf "\\e[1m##           _   _____              _  _              ##\\e[0m\\n"
+	printf "\\e[1m##          (_) / ____|            (_)| |             ##\\e[0m\\n"
+	printf "\\e[1m##    _   _  _ | (___    ___  _ __  _ | |__    ___    ##\\e[0m\\n"
+	printf "\\e[1m##   | | | || | \___ \  / __|| '__|| || '_ \  / _ \   ##\\e[0m\\n"
+	printf "\\e[1m##   | |_| || | ____) || (__ | |   | || |_) ||  __/   ##\\e[0m\\n"
+	printf "\\e[1m##    \__,_||_||_____/  \___||_|   |_||_.__/  \___|   ##\\e[0m\\n"
+	printf "\\e[1m##                                                    ##\\e[0m\\n"
+	printf "\\e[1m##                 %s on %-9s                ##\\e[0m\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
+	printf "\\e[1m##                                                    ##\\e[0m\\n"
+	printf "\\e[1m##         https://github.com/jackyaz/%s        ##\\e[0m\\n" "$SCRIPT_NAME"
+	printf "\\e[1m##                                                    ##\\e[0m\\n"
+	printf "\\e[1m########################################################\\e[0m\\n"
 	printf "\\n"
 }
 
@@ -528,23 +526,27 @@ MainMenu(){
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
 	printf "z.    Uninstall %s\\n" "$SCRIPT_NAME"
 	printf "\\n"
-	printf "\\e[1m######################################################\\e[0m\\n"
+	printf "\\e[1m########################################################\\e[0m\\n"
 	printf "\\n"
 	
 	while true; do
-		printf "Choose an option:    "
+		printf "Choose an option:  "
 		read -r menu
 		case "$menu" in
 			1)
 				if Check_Lock menu; then
-					Menu_CustomiseLogList
+					Generate_Log_List
+					printf "\\n"
+					Clear_Lock
 				fi
 				PressEnter
 				break
 			;;
 			rf)
 				if Check_Lock menu; then
-					Menu_ProcessUIScripts force
+					Create_Symlinks force
+					printf "\\n"
+					Clear_Lock force
 				fi
 				PressEnter
 				break
@@ -552,7 +554,8 @@ MainMenu(){
 			u)
 				printf "\\n"
 				if Check_Lock menu; then
-					Menu_Update
+					Update_Version
+					Clear_Lock
 				fi
 				PressEnter
 				break
@@ -560,7 +563,8 @@ MainMenu(){
 			uf)
 				printf "\\n"
 				if Check_Lock menu; then
-					Menu_ForceUpdate
+					Update_Version force
+					Clear_Lock
 				fi
 				PressEnter
 				break
@@ -572,7 +576,7 @@ MainMenu(){
 			;;
 			z)
 				while true; do
-					printf "\\n\\e[1mAre you sure you want to uninstall %s? (y/n)\\e[0m\\n" "$SCRIPT_NAME"
+					printf "\\n\\e[1mAre you sure you want to uninstall %s? (y/n)\\e[0m  " "$SCRIPT_NAME"
 					read -r confirm
 					case "$confirm" in
 						y|Y)
@@ -643,7 +647,7 @@ Menu_Install(){
 	fi
 	
 	Create_Dirs
-	Set_Version_Custom_Settings local
+	Set_Version_Custom_Settings local "$SCRIPT_VERSION"
 	Set_Version_Custom_Settings server "$SCRIPT_VERSION"
 	Create_Symlinks
 	Update_File Main_LogStatus_Content.asp
@@ -657,20 +661,7 @@ Menu_Install(){
 	Clear_Lock
 }
 
-Menu_CustomiseLogList(){
-	Generate_Log_List
-	printf "\\n"
-	Clear_Lock
-}
-
-Menu_ProcessUIScripts(){
-	Create_Symlinks "$1"
-	printf "\\n"
-	Clear_Lock
-}
-
 Menu_Startup(){
-	# shellcheck disable=SC2009
 	if [ -z "$PPID" ] || ! ps | grep "$PPID" | grep -iq "scribe"; then
 		if [ -z "$1" ]; then
 			Print_Output true "Missing argument for startup, not starting $SCRIPT_NAME" "$WARN"
@@ -690,22 +681,11 @@ Menu_Startup(){
 	Check_Lock
 	
 	Create_Dirs
-	Set_Version_Custom_Settings local
 	Create_Symlinks
 	Auto_Startup create 2>/dev/null
 	Auto_ServiceEvent create 2>/dev/null
 	Shortcut_Script create
 	Mount_WebUI
-	Clear_Lock
-}
-
-Menu_Update(){
-	Update_Version
-	Clear_Lock
-}
-
-Menu_ForceUpdate(){
-	Update_Version force
 	Clear_Lock
 }
 
@@ -717,7 +697,7 @@ Menu_Uninstall(){
 	umount /www/Main_LogStatus_Content.asp 2>/dev/null
 	rm -rf "$SCRIPT_DIR" 2>/dev/null
 	rm -rf "$SCRIPT_WEB_DIR" 2>/dev/null
-	SETTINGSFILE=/jffs/addons/custom_settings.txt
+	SETTINGSFILE="/jffs/addons/custom_settings.txt"
 	sed -i '/uiscribe_version_local/d' "$SETTINGSFILE"
 	sed -i '/uiscribe_version_server/d' "$SETTINGSFILE"
 	rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
@@ -769,12 +749,12 @@ Entware_Ready(){
 }
 ### ###
 
+
 if [ -z "$1" ]; then
 	NTP_Ready
 	Entware_Ready
 	sed -i '/\/dev\/null/d' "$SCRIPT_DIR/.logs_user"
 	Create_Dirs
-	Set_Version_Custom_Settings local
 	Create_Symlinks
 	Auto_Startup create 2>/dev/null
 	Auto_ServiceEvent create 2>/dev/null
@@ -808,23 +788,33 @@ case "$1" in
 		exit 0
 	;;
 	update)
-		Update_Version unattended
+		Update_Version
 		exit 0
 	;;
 	forceupdate)
-		Update_Version force unattended
+		Update_Version force
 		exit 0
 	;;
 	setversion)
-		Set_Version_Custom_Settings local
+		sed -i '/\/dev\/null/d' "$SCRIPT_DIR/.logs_user"
+		Create_Dirs
+		Create_Symlinks
+		Auto_Startup create 2>/dev/null
+		Auto_ServiceEvent create 2>/dev/null
+		Shortcut_Script create
+		Set_Version_Custom_Settings local "$SCRIPT_VERSION"
 		Set_Version_Custom_Settings server "$SCRIPT_VERSION"
-		if [ -z "$2" ]; then
-			exec "$0"
-		fi
 		exit 0
 	;;
-	checkupdate)
-		Update_Check
+	postupdate)
+		sed -i '/\/dev\/null/d' "$SCRIPT_DIR/.logs_user"
+		Create_Dirs
+		Create_Symlinks
+		Auto_Startup create 2>/dev/null
+		Auto_ServiceEvent create 2>/dev/null
+		Shortcut_Script create
+		exit 0
+	;;
 		exit 0
 	;;
 	develop)
@@ -840,12 +830,13 @@ case "$1" in
 		exit 0
 	;;
 	uninstall)
-		Check_Lock
 		Menu_Uninstall
 		exit 0
 	;;
 	*)
-		echo "Command not recognised, please try again"
+		ScriptHeader
+		Print_Output false "Command not recognised." "$ERR"
+		Print_Output false "For a list of available commands run: $SCRIPT_NAME help"
 		exit 1
 	;;
 esac
