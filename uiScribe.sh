@@ -790,9 +790,8 @@ Entware_Ready(){
 Show_About(){
 	cat <<EOF
 About
-  $SCRIPT_NAME is a tool that tracks your cable modem's stats
-  (such as signal power levels) for AsusWRT Merlin with charts
-  for daily, weekly and monthly summaries.
+  $SCRIPT_NAME updates the System Log page to show log files created
+  by Scribe (syslog-ng). Requires Scribe https://github.com/cynicastic/scribe
 License
   $SCRIPT_NAME is free to use under the GNU General Public License
   version 3 (GPL-3.0) https://opensource.org/licenses/GPL-3.0
@@ -815,8 +814,6 @@ Available commands:
   $SCRIPT_NAME startup force      runs startup actions such as mount WebUI tab
   $SCRIPT_NAME install            installs script
   $SCRIPT_NAME uninstall          uninstalls script
-  $SCRIPT_NAME generate           get modem stats and logs. also runs outputcsv
-  $SCRIPT_NAME outputcsv          create CSVs from database, used by WebUI and export
   $SCRIPT_NAME develop            switch to development branch
   $SCRIPT_NAME stable             switch to stable branch
 EOF
