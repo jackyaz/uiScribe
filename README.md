@@ -1,6 +1,6 @@
 # uiScribe
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c705507fb1d845d9937e98f0b6e15997)](https://www.codacy.com/app/jackyaz/uiScribe?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jackyaz/uiScribe&amp;utm_campaign=Badge_Grade)
-[![Build Status](https://travis-ci.com/jackyaz/uiScribe.svg?branch=master)](https://travis-ci.com/jackyaz/uiScribe)
+![Shellcheck](https://github.com/jackyaz/uiScribe/actions/workflows/shellcheck.yml/badge.svg)
 
 ## v1.4.2
 ### Updated on 2021-02-23
