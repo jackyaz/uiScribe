@@ -42,7 +42,7 @@ readonly ERR="\\e[31m"
 readonly WARN="\\e[33m"
 readonly PASS="\\e[32m"
 readonly BOLD="\\e[1m"
-#readonly SETTING="${BOLD}\\e[36m"
+readonly SETTING="${BOLD}\\e[36m"
 readonly CLEARFORMAT="\\e[0m"
 ### End of output format variables ###
 
@@ -563,6 +563,7 @@ ScriptHeader(){
 MainMenu(){
 	Create_Dirs
 	Create_Symlinks
+	printf "WebUI for %s is available at:\\n${SETTING}%s${CLEARFORMAT}\\n\\n" "$SCRIPT_NAME" "$(Get_WebUI_URL)"
 	printf "1.    Customise list of logs displayed by %s\\n\\n" "$SCRIPT_NAME"
 	printf "rf.   Clear user preferences for displayed logs\\n\\n"
 	printf "u.    Check for updates\\n"
