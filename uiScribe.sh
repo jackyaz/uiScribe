@@ -649,18 +649,18 @@ Check_Requirements(){
 	fi
 	
 	if [ ! -f /opt/bin/opkg ]; then
-		Print_Output true "Entware not detected!" "$ERR"
+		Print_Output false "Entware not detected!" "$ERR"
 		CHECKSFAILED="true"
 	fi
 	
 	if [ ! -f /opt/bin/scribe ]; then
-		Print_Output true "Scribe not installed!" "$ERR"
+		Print_Output false "Scribe not installed!" "$ERR"
 		CHECKSFAILED="true"
 	fi
 	
 	if ! Firmware_Version_Check; then
-		Print_Output true "Unsupported firmware version detected" "$ERR"
-		Print_Output true "$SCRIPT_NAME requires Merlin 384.15/384.13_4 or Fork 43E5 (or later)" "$ERR"
+		Print_Output false "Unsupported firmware version detected" "$ERR"
+		Print_Output false "$SCRIPT_NAME requires Merlin 384.15/384.13_4 or Fork 43E5 (or later)" "$ERR"
 		CHECKSFAILED="true"
 	fi
 	
@@ -675,10 +675,10 @@ Menu_Install(){
 	Print_Output true "Welcome to $SCRIPT_NAME $SCRIPT_VERSION, a script by JackYaz"
 	sleep 1
 	
-	Print_Output true "Checking your router meets the requirements for $SCRIPT_NAME"
+	Print_Output false "Checking your router meets the requirements for $SCRIPT_NAME"
 	
 	if ! Check_Requirements; then
-		Print_Output true "Requirements for $SCRIPT_NAME not met, please see above for the reason(s)" "$CRIT"
+		Print_Output false "Requirements for $SCRIPT_NAME not met, please see above for the reason(s)" "$CRIT"
 		PressEnter
 		Clear_Lock
 		rm -f "/jffs/scripts/$SCRIPT_NAME" 2>/dev/null
