@@ -11,48 +11,7 @@
 <link rel="stylesheet" type="text/css" href="index_style.css">
 <link rel="stylesheet" type="text/css" href="form_style.css">
 <style>
-p {
-  font-weight: bolder;
-}
-
-thead.collapsible-jquery {
-  color: white;
-  padding: 0px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  cursor: pointer;
-}
-
-thead.collapsible-jquery-config {
-  color: white;
-  padding: 0px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  cursor: pointer;
-}
-
-.btndisabled {
-  border: 1px solid #999999 !important;
-  background-color: #cccccc !important;
-  color: #000000 !important;
-  background: #cccccc !important;
-  text-shadow: none !important;
-  cursor: default !important;
-}
-
-input.settingvalue {
-  margin-left: 3px !important;
-}
-
-label.settingvalue {
-  vertical-align: top !important;
-  width: 90px !important;
-  display: inline-block !important;
-}
+p{font-weight:bolder}thead.collapsible-jquery{color:#fff;padding:0;width:100%;border:none;text-align:left;outline:none;cursor:pointer}thead.collapsible-jquery-config{color:#fff;padding:0;width:100%;border:none;text-align:left;outline:none;cursor:pointer}.btndisabled{border:1px solid #999!important;background-color:#ccc!important;color:#000!important;background:#ccc!important;text-shadow:none!important;cursor:default!important}input.settingvalue{margin-left:3px!important}label.settingvalue{vertical-align:top!important;width:90px!important;display:inline-block!important}
 </style>
 <script language="JavaScript" type="text/javascript" src="/ext/shared-jy/jquery.js"></script>
 <script language="JavaScript" type="text/javascript" src="/state.js"></script>
