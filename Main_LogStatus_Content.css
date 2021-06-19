@@ -1,0 +1,42 @@
+p {
+  font-weight: bolder;
+}
+
+thead.collapsible-jquery {
+  color: white;
+  padding: 0px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  cursor: pointer;
+}
+
+thead.collapsible-jquery-config {
+  color: white;
+  padding: 0px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  cursor: pointer;
+}
+
+.btndisabled {
+  border: 1px solid #999999 !important;
+  background-color: #cccccc !important;
+  color: #000000 !important;
+  background: #cccccc !important;
+  text-shadow: none !important;
+  cursor: default !important;
+}
+
+input.settingvalue {
+  margin-left: 3px !important;
+}
+
+label.settingvalue {
+  vertical-align: top !important;
+  width: 90px !important;
+  display: inline-block !important;
+}
