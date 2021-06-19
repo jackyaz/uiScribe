@@ -3,7 +3,7 @@
 ![Shellcheck](https://github.com/jackyaz/uiScribe/actions/workflows/shellcheck.yml/badge.svg)
 
 ## v1.4.3
-### Updated on 2021-06-13
+### Updated on 2021-06-19
 ## About
 uiScribe updates the System Log page to show log files created by Scribe (syslog-ng). Requires [**Scribe**](https://github.com/cynicastic/scribe)
 Support for Scribe can be found here: [Scribe on SNBForums](https://www.snbforums.com/threads/scribe-syslog-ng-and-logrotate-installer.55853/)
