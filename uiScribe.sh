@@ -38,7 +38,9 @@ readonly CRIT="\\e[41m"
 readonly ERR="\\e[31m"
 readonly WARN="\\e[33m"
 readonly PASS="\\e[32m"
-readonly SETTING="\\e[1m\\e[36m"
+readonly BOLD="\\e[1m"
+readonly SETTING="${BOLD}\\e[36m"
+readonly CLEARFORMAT="\\e[0m"
 ### End of output format variables ###
 
 # $1 = print to syslog, $2 = message to print, $3 = log level
@@ -46,7 +48,7 @@ Print_Output(){
 	if [ "$1" = "true" ]; then
 		logger -t "$SCRIPT_NAME" "$2"
 	fi
-	printf "\\e[1m${3}%s\\e[0m\\n\\n" "$2"
+	printf "${BOLD}${3}%s${CLEARFORMAT}\\n\\n" "$2"
 }
 
 Firmware_Version_Check(){
@@ -158,7 +160,7 @@ Update_Version(){
 		fi
 		
 		if [ "$isupdate" != "false" ]; then
-			printf "\\n\\e[1mDo you want to continue with the update? (y/n)\\e[0m  "
+			printf "\\n${BOLD}Do you want to continue with the update? (y/n)${CLEARFORMAT}  "
 			read -r confirm
 			case "$confirm" in
 				y|Y)
@@ -358,17 +360,17 @@ Generate_Log_List(){
 	printf "\\ne)  Go back\\n"
 	
 	while true; do
-	printf "\\n\\e[1mPlease select a log to toggle inclusion in %s (1-%s):\\e[0m  " "$SCRIPT_NAME" "$logcount"
+	printf "\\n${BOLD}Please select a log to toggle inclusion in %s (1-%s):${CLEARFORMAT}  " "$SCRIPT_NAME" "$logcount"
 	read -r log
 	
 	if [ "$log" = "e" ]; then
 		goback="true"
 		break
 	elif ! Validate_Number "$log"; then
-		printf "\\n\\e[31mPlease enter a valid number (1-%s)\\e[0m\\n" "$logcount"
+		printf "\\n\\e[31mPlease enter a valid number (1-%s)${CLEARFORMAT}\\n" "$logcount"
 	else
 		if [ "$log" -lt 1 ] || [ "$log" -gt "$logcount" ]; then
-			printf "\\n\\e[31mPlease enter a number between 1 and %s\\e[0m\\n" "$logcount"
+			printf "\\n\\e[31mPlease enter a number between 1 and %s${CLEARFORMAT}\\n" "$logcount"
 		else
 			logline="$(sed "$log!d" "$SCRIPT_DIR/.logs_user" | awk '{$1=$1};1')"
 			if echo "$logline" | grep -q "#excluded#" ; then
@@ -538,20 +540,20 @@ PressEnter(){
 ScriptHeader(){
 	clear
 	printf "\\n"
-	printf "\\e[1m########################################################\\e[0m\\n"
-	printf "\\e[1m##                                                    ##\\e[0m\\n"
-	printf "\\e[1m##           _   _____              _  _              ##\\e[0m\\n"
-	printf "\\e[1m##          (_) / ____|            (_)| |             ##\\e[0m\\n"
-	printf "\\e[1m##    _   _  _ | (___    ___  _ __  _ | |__    ___    ##\\e[0m\\n"
-	printf "\\e[1m##   | | | || | \___ \  / __|| '__|| || '_ \  / _ \   ##\\e[0m\\n"
-	printf "\\e[1m##   | |_| || | ____) || (__ | |   | || |_) ||  __/   ##\\e[0m\\n"
-	printf "\\e[1m##    \__,_||_||_____/  \___||_|   |_||_.__/  \___|   ##\\e[0m\\n"
-	printf "\\e[1m##                                                    ##\\e[0m\\n"
-	printf "\\e[1m##                 %s on %-9s                ##\\e[0m\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
-	printf "\\e[1m##                                                    ##\\e[0m\\n"
-	printf "\\e[1m##         https://github.com/jackyaz/%s        ##\\e[0m\\n" "$SCRIPT_NAME"
-	printf "\\e[1m##                                                    ##\\e[0m\\n"
-	printf "\\e[1m########################################################\\e[0m\\n"
+	printf "${BOLD}########################################################${CLEARFORMAT}\\n"
+	printf "${BOLD}##                                                    ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##           _   _____              _  _              ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##          (_) / ____|            (_)| |             ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##    _   _  _ | (___    ___  _ __  _ | |__    ___    ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##   | | | || | \___ \  / __|| '__|| || '_ \  / _ \   ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##   | |_| || | ____) || (__ | |   | || |_) ||  __/   ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##    \__,_||_||_____/  \___||_|   |_||_.__/  \___|   ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##                                                    ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##                 %s on %-9s                ##${CLEARFORMAT}\\n" "$SCRIPT_VERSION" "$ROUTER_MODEL"
+	printf "${BOLD}##                                                    ##${CLEARFORMAT}\\n"
+	printf "${BOLD}##         https://github.com/jackyaz/%s        ##${CLEARFORMAT}\\n" "$SCRIPT_NAME"
+	printf "${BOLD}##                                                    ##${CLEARFORMAT}\\n"
+	printf "${BOLD}########################################################${CLEARFORMAT}\\n"
 	printf "\\n"
 }
 
@@ -565,7 +567,7 @@ MainMenu(){
 	printf "e.    Exit %s\\n\\n" "$SCRIPT_NAME"
 	printf "z.    Uninstall %s\\n" "$SCRIPT_NAME"
 	printf "\\n"
-	printf "\\e[1m########################################################\\e[0m\\n"
+	printf "${BOLD}########################################################${CLEARFORMAT}\\n"
 	printf "\\n"
 	
 	while true; do
@@ -610,12 +612,12 @@ MainMenu(){
 			;;
 			e)
 				ScriptHeader
-				printf "\\n\\e[1mThanks for using %s!\\e[0m\\n\\n\\n" "$SCRIPT_NAME"
+				printf "\\n${BOLD}Thanks for using %s!${CLEARFORMAT}\\n\\n\\n" "$SCRIPT_NAME"
 				exit 0
 			;;
 			z)
 				while true; do
-					printf "\\n\\e[1mAre you sure you want to uninstall %s? (y/n)\\e[0m  " "$SCRIPT_NAME"
+					printf "\\n${BOLD}Are you sure you want to uninstall %s? (y/n)${CLEARFORMAT}  " "$SCRIPT_NAME"
 					read -r confirm
 					case "$confirm" in
 						y|Y)
