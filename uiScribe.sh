@@ -769,7 +769,7 @@ Entware_Ready(){
 	if [ ! -f /opt/bin/opkg ]; then
 		Check_Lock
 		sleepcount=1
-		while [ ! -f "/opt/bin/opkg" ] && [ "$sleepcount" -le 10 ]; do
+		while [ ! -f /opt/bin/opkg ] && [ "$sleepcount" -le 10 ]; do
 			Print_Output true "Entware not found, sleeping for 10s (attempt $sleepcount of 10)" "$ERR"
 			sleepcount="$((sleepcount + 1))"
 			sleep 10
