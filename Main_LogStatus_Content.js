@@ -329,6 +329,26 @@ function AddEventHandlers(){
 	ResizeAll('hide');
 	
 	$j('#thead_messages').trigger('click');
+	
+	$j('.collapsible-jquery-config').off('click').on('click',function(){
+		$j(this).siblings().toggle('fast',function(){
+			if($j(this).css('display') == 'none'){
+				SetCookie($j(this).siblings()[0].id,'collapsed');
+			}
+			else{
+				SetCookie($j(this).siblings()[0].id,'expanded');
+			}
+		})
+	});
+	
+	$j('.collapsible-jquery-config').each(function(index,element){
+		if(GetCookie($j(this)[0].id,'string') == 'collapsed'){
+			$j(this).siblings().toggle(false);
+		}
+		else{
+			$j(this).siblings().toggle(true);
+		}
+	});
 }
 
 function ToggleRefresh(){
